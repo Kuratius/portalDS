@@ -155,7 +155,7 @@ bool updateBottomScreen(touchPosition* tp)
 	if(tp->px>=64 && tp->py>=4 && tp->px<=64+128 && tp->py<=4+32)
 	{
 		r=true;
-		if(keysUp()&KEY_TOUCH){currentPortalColor^=1;}
+		if(! (keysUp()&KEY_TOUCH) ){currentPortalColor^=1;}
 		touchCnt=0;
 	}
 

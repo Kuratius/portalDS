@@ -151,12 +151,16 @@ ReadPCX4bits (u8 *buffer, const struct pcx_header_t *hdr, struct gl_texture_t *t
 	free (line);
 }
 
+
+
 static void
 ReadPCX8bits (u8 *buffer, const struct pcx_header_t *hdr,
 	struct gl_texture_t *texinfo)
 {
 	int rle_count = 0, rle_value = 0, i;
-	u8 palette[768];
+
+	u8 * palette=malloc(768 *sizeof(u8) );
+
 	u8 magic;
 	u8 *ptr;
 	fpos_t curpos;
@@ -179,6 +183,7 @@ ReadPCX8bits (u8 *buffer, const struct pcx_header_t *hdr,
 
 		free (texinfo->texels);
 		texinfo->texels = NULL;
+		free(palette);
 		return;
 	}
 
@@ -230,6 +235,7 @@ ReadPCX8bits (u8 *buffer, const struct pcx_header_t *hdr,
 			ptr++;
 		}
 	}
+    free(palette);
 }
 
 	/*static void
@@ -296,11 +302,11 @@ void convertPCX16Bit(struct gl_texture_t* pcx)
 
 //extern int lastSize;
 
+
+struct pcx_header_t header;
 struct gl_texture_t * ReadPCXFile (const char *filename, char* directory)
 {
 	struct gl_texture_t *texinfo;
-	struct pcx_header_t header;
-// FILE *fp = NULL;
 	int bitcount;
 	u8* buffer;
 
@@ -320,8 +326,11 @@ struct gl_texture_t * ReadPCXFile (const char *filename, char* directory)
 
 /* Read header file */
 // fread (&header, sizeof (struct pcx_header_t), 1, fp);
-	memcpy(&header,buffer,sizeof (struct pcx_header_t));
+
+    nocashMessage("performing sketchy memcopy\n");
+	memcpy(&header,buffer,sizeof (header));
 	fileptr+=sizeof (struct pcx_header_t);
+
 	if (header.manufacturer != 0x0a)
 	{
 		NOGBA("error: bad version number! (%i)\n",
@@ -330,6 +339,7 @@ struct gl_texture_t * ReadPCXFile (const char *filename, char* directory)
 	}
 
 /* Initialize texture parameters */
+
 	texinfo = (struct gl_texture_t *)malloc (sizeof (struct gl_texture_t));
 	texinfo->width = header.xmax - header.xmin + 1;
 	texinfo->height = header.ymax - header.ymin + 1;
@@ -341,8 +351,8 @@ struct gl_texture_t * ReadPCXFile (const char *filename, char* directory)
 	texinfo->texels=NULL;
 	texinfo->palette=NULL;
 	texinfo->texels16=NULL;
-
 /* Read image data */
+
 	switch (bitcount)
 	{
 		/*case 1:
@@ -377,8 +387,6 @@ struct gl_texture_t * ReadPCXFile (const char *filename, char* directory)
 		texinfo = NULL;
 		break;
 	}
-
-	// fclose (fp);
 	free(buffer);
 	return texinfo;
 }

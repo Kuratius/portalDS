@@ -707,7 +707,6 @@ dictionary * iniparser_loadBUFF(char* buffer)
     dict = dictionary_new(0) ;
     if (!dict) {
 		printf("pb1\n");
-        // fclose(in);
         return NULL ;
     }
 
@@ -800,6 +799,7 @@ dictionary * iniparser_loadBUFF(char* buffer)
 /*--------------------------------------------------------------------------*/
 void iniparser_freedict(dictionary * d)
 {
+    if (!d )return;
     dictionary_del(d);
 }
 

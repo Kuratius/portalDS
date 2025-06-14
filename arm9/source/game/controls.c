@@ -3,8 +3,8 @@
 
 u8 touchCnt;
 
-//extern bool currentPortalColor;
-// extern SFX_struct *gunSFX1, *gunSFX2;
+extern bool currentPortalColor;
+extern SFX_struct *gunSFX1, *gunSFX2;
 
 typedef enum
 {
@@ -289,7 +289,7 @@ static void controlPause(player_struct* p, bool down, bool held)
 
 static void controlShootAll(player_struct* p, bool down, bool held)
 {
-	if(!p || !down)return;
+	if(!p || down )return;
 
 	if(controlWasCalled[5])
 		return;

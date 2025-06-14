@@ -113,10 +113,20 @@ mtlImg_struct* createTexture(char* filename, char* directory)
 		if(!texture[i].used)
 		{
 			int j;
-			for(j=0;j<MAX_TEX;j++){if(texture[j].used){if(!strcmp(texture[j].name,filename)){NOGBA("STOP !!! (%s)",filename);return &texture[j];}}}
+			for(j=0;j<MAX_TEX;j++)
+            {
+                if(texture[j].used)
+                {
+                    if(!strcmp(texture[j].name,filename))
+                    {
+                        NOGBA("STOP !!! (%s)",filename);
+                        return &texture[j];
+                    }
+                }
+            }
 			NOGBA("num %d",i);
 			loadTexturePCX(filename, directory, &texture[i]);
-			return &texture[i];
+            return &texture[i];
 		}
 	}
 	return NULL;
@@ -455,23 +465,26 @@ void loadTextureBuffer16(u16* buffer, u16 x, u16 y, mtlImg_struct *mtl, bool gen
 	else reserveInBank(mtl, (u8*)buffer, &bank[mtl->bank], 0);
 }
 
+
+
 void loadTexturePCX(char* filename, char* directory, mtlImg_struct* mtl)
 {
 	int param;
 	uint8 texX=0, texy=0;
+
 	u8* texels=NULL;
 
 	mtl->used=true;
 	mtl->name=alloc(strlen(filename)+1,NULL);
 	strcpy(mtl->name,filename);
-
 	struct gl_texture_t *pcxt=(struct gl_texture_t *)ReadPCXFile(filename,directory);
 
 	mtl->rwidth=mtl->width=pcxt->width;
 	mtl->rheight=mtl->height=pcxt->height;
-
 	adjustDimension(&mtl->width);
 	adjustDimension(&mtl->height);
+
+
 
 	if(pcxt->palette[0]==RGB15(31,0,31))param=TEXGEN_TEXCOORD | GL_TEXTURE_WRAP_S | GL_TEXTURE_WRAP_T | (1<<29);
 	else param=TEXGEN_TEXCOORD | GL_TEXTURE_WRAP_S | GL_TEXTURE_WRAP_T;
@@ -502,8 +515,11 @@ void loadTexturePCX(char* filename, char* directory, mtlImg_struct* mtl)
 			addPaletteToBank(mtl, pcxt->palette, 256*2);
 			mtl->size=mtl->width*mtl->height;
 			getTextureAddress(mtl);
+
 			getGlWL(mtl->width, mtl->height, &texX, &texy);
+
 			setTextureParameter(mtl, texX, texy, mtl->addr, GL_RGB256, param);
+
 			if(mtl->width!=pcxt->width || mtl->height!=pcxt->height){
 				texels=malloc(mtl->size);
 				int j;
@@ -551,6 +567,7 @@ u32* loadPalettePCX(char* filename, char* directory)
 
 void applyMTL(mtlImg_struct* mtl)
 {
+    if (!mtl) return;
 	bindPalette(mtl);
 	bindTexture(mtl);
 }

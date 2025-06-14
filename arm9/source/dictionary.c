@@ -126,14 +126,19 @@ dictionary * dictionary_new(int size)
 
 	/* If no size was specified, allocate space for DICTMINSZ */
 	if (size<DICTMINSZ) size=DICTMINSZ ;
+    d = (dictionary *)malloc(1* sizeof(dictionary));
 
-	if (!(d = (dictionary *)calloc(1, sizeof(dictionary)))) {
+    memset(d, 0, 1*sizeof(dictionary));
+	if (!d) {
 		return NULL;
 	}
 	d->size = size ;
-	d->val  = (char **)calloc(size, sizeof(char*));
-	d->key  = (char **)calloc(size, sizeof(char*));
-	d->hash = (unsigned int *)calloc(size, sizeof(unsigned));
+	d->val  = (char **)malloc(size* sizeof(char*));
+	memset(d->val , 0, size*sizeof(char*));
+	d->key  = (char **)malloc(size* sizeof(char*));
+	memset(d->key , 0, size*sizeof(char*));
+	d->hash = (unsigned int *)malloc(size* sizeof(unsigned));
+	memset(d->hash , 0, size*sizeof(unsigned));
 	return d ;
 }
 
@@ -149,13 +154,16 @@ dictionary * dictionary_new(int size)
 void dictionary_del(dictionary * d)
 {
 	int		i ;
-
 	if (d==NULL) return ;
-	for (i=0 ; i<d->size ; i++) {
-		if (d->key[i]!=NULL)
+    int size=d->size;
+	for (i=0 ; i<size ; i++) {
+		if (d->key!=NULL){
 			free(d->key[i]);
-		if (d->val[i]!=NULL)
+        }
+		if (d->val!=NULL){
 			free(d->val[i]);
+
+        }
 	}
 	free(d->val);
 	free(d->key);

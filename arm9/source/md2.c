@@ -59,11 +59,14 @@ void packFrameData(md2Model_struct *mdl, md2_frame_t* f)
 		else if(pvert->v[1]>f->max.y)f->max.y=pvert->v[1];
 		if(pvert->v[2]<f->min.z)f->min.z=pvert->v[2];
 		else if(pvert->v[2]>f->max.z)f->max.z=pvert->v[2];
+
+
 	}
 	f->min=vect(mulf32(f->min.x,f->scale.x)*128*32,mulf32(f->min.y,f->scale.y)*128*32,mulf32(f->min.z,f->scale.z)*128*32);
 	f->max=vect(mulf32(f->max.x,f->scale.x)*128*32,mulf32(f->max.y,f->scale.y)*128*32,mulf32(f->max.z,f->scale.z)*128*32);
 	f->min=addVect(f->min,f->translate);
 	f->max=addVect(f->max,f->translate);
+    return;
 }
 
 void packTexcoordData(md2Model_struct *mdl)
@@ -87,6 +90,7 @@ void getAnimations(md2Model_struct *mdl)
 	int i;
 	char* oldstr=NULL;
 	int n=0;
+
 	for(i=0;i<mdl->header.num_frames;i++)
 	{
 		md2_frame_t *pframe=&mdl->frames[i];
@@ -94,23 +98,32 @@ void getAnimations(md2Model_struct *mdl)
 		if(oldstr != NULL && strcmp(pframe->name,oldstr))n++;
 		oldstr=pframe->name;
 	}
+    if (n==0) return;
 	mdl->numAnim=n;
 	mdl->animations=malloc(sizeof(md2Anim_struct)*mdl->numAnim);
 	n=0;
 	mdl->animations[0].start=0;
 	oldstr=mdl->frames[0].name;
+
 	for(i=0;i<mdl->header.num_frames;i++)
 	{
 		md2_frame_t *pframe=&mdl->frames[i];
 		if(strcmp(pframe->name,oldstr))
 		{
-			mdl->animations[n++].end=i-1;
-			mdl->animations[n].start=i;
+
+            if (n<mdl->numAnim)
+			    mdl->animations[n].end=i-1;
+            n+=1;
+            if (n<mdl->numAnim)
+			    mdl->animations[n].start=i;
+
+
 		}
 		oldstr=pframe->name;
 	}
-	mdl->animations[n].end=i-1;
-	
+
+    if (n<mdl->numAnim)
+	    mdl->animations[n].end=i-1;
 	
 	for(i=0;i<mdl->numAnim;i++)
 	{
@@ -125,11 +138,16 @@ void getAnimations(md2Model_struct *mdl)
 
 int loadMd2Model(const char *filename, char *texname, md2Model_struct *mdl)
 {
+    if (!mdl) {
+        return 0;
+    }
 	FILE *fp;
 	int i;
-	
-	mdl->texture=createTexture(texname,"textures");
 
+    mdl->texture=NULL;
+
+	mdl->texture=createTexture(texname,"textures");
+    nocashMessage("OpeningFile\n");
 	fp = fopen (filename, "rb");
 	if (!fp)
 	{
@@ -169,6 +187,7 @@ int loadMd2Model(const char *filename, char *texname, md2Model_struct *mdl)
 
 	/* Read frames */
 	fseek (fp, mdl->header.offset_frames, SEEK_SET);
+
 	for (i = 0; i < mdl->header.num_frames; ++i)
 	{
 		/* Memory allocation for vertices of this frame */
@@ -181,21 +200,17 @@ int loadMd2Model(const char *filename, char *texname, md2Model_struct *mdl)
 		// mdl->frames[i].faceNormals = (vect3D *) malloc (sizeof (vect3D) * mdl->header.num_tris);		
 		
 	    vec3_t scale,trans;
-		
 		fread (scale, sizeof (vec3_t), 1, fp);
 		fread (trans, sizeof (vec3_t), 1, fp);
 		
 		mdl->frames[i].scale=vect(floattof32(scale[0]),floattof32(scale[1]),floattof32(scale[2]));
 		mdl->frames[i].translate=vect(floattof32(trans[0]),floattof32(trans[1]),floattof32(trans[2]));
-		
 		fread (mdl->frames[i].name, sizeof (char), 16, fp);
 		fread (mdl->frames[i].verts, sizeof (md2_vertex_t), mdl->header.num_vertices, fp);
 		
 		packFrameData(mdl,&mdl->frames[i]);
 	}
-	
 	getAnimations(mdl);
-
 	fclose(fp);
 	return 1;
 }
@@ -414,7 +429,7 @@ void renderModelFrame(int n, const md2Model_struct *mdl)
 void renderModelFrameInterp(int n, int n2, int m, const md2Model_struct *mdl, u32 params, bool center, u32* pal, u16 color)
 {
 	int i, j;
-	
+	if (!mdl) return;
 	glPolyFmt(params);
 
 	n%=mdl->header.num_frames;
@@ -428,24 +443,44 @@ void renderModelFrameInterp(int n, int n2, int m, const md2Model_struct *mdl, u3
 	md2_frame_t *pframe=&mdl->frames[n];
 	if(pframe->displayList[m])n2=pframe->next;	
 	md2_frame_t *pframe2=&mdl->frames[n2];
-		
-	applyMTL(mdl->texture);
+
+    if (mdl->texture)
+	    applyMTL(mdl->texture);
 	if(pal)bindPaletteAddr(pal);
 
+
+    NOGBA("rendermodelframe bp1\n");
 	glPushMatrix();
 	
 		glRotateXi(-(1<<13));
 
 		glScalef32(1<<5,1<<5,1<<5); //?
-		
-		glTranslate3f32(pframe->translate.x+((pframe2->translate.x-pframe->translate.x)*m)/4,pframe->translate.y+((pframe2->translate.y-pframe->translate.y)*m)/4,pframe->translate.z+((pframe2->translate.z-pframe->translate.z)*m)/4);
+	    NOGBA("bp2\n");
+
+
+
+
+        
+        int x=pframe->translate.x;
+
+        NOGBA("bp2.4\n");
+        NOGBA("bp2.45 %d \n", pframe2->translate.x);
+        x+=((pframe2->translate.x-pframe->translate.x)*m)/4;
+        NOGBA("bp2.5\n");
+        int y=pframe->translate.y+((pframe2->translate.y-pframe->translate.y)*m)/4;
+        int z=pframe->translate.z+((pframe2->translate.z-pframe->translate.z)*m)/4;
+	    NOGBA("bp3\n");
+		glTranslate3f32(x,y,z);
+	    NOGBA("bp4\n");
+
 		if(center){md2_frame_t *frm=&mdl->frames[0];glTranslate3f32(-(frm->min.x+frm->max.x)/2,-(frm->min.y+frm->max.y)/2,-(frm->min.z+frm->max.z)/2);} //TEMP? ("fake" center)
-		
+
 		glScalef32((pframe->scale.x+((pframe2->scale.x-pframe->scale.x)*m)/4),(pframe->scale.y+((pframe2->scale.y-pframe->scale.y)*m)/4),(pframe->scale.z+((pframe2->scale.z-pframe->scale.z)*m)/4));
 
 		glScalef32(inttof32(32),inttof32(32),inttof32(32)); // necessary for v10
 		GFX_COLOR=color;
 		
+
 		if(!pframe->verts && !pframe->displayList[m])m=0;
 
 		if(pframe->displayList[m])
@@ -453,6 +488,7 @@ void renderModelFrameInterp(int n, int n2, int m, const md2Model_struct *mdl, u3
 			glCallList(pframe->displayList[m]);
 		}else{		
 			glBegin (GL_TRIANGLES);
+
 			for (i = 0; i < mdl->header.num_tris; ++i)
 			{
 				{
@@ -506,7 +542,8 @@ void updateAnimation(modelInstance_struct* mi)
 	{
 		mi->interpCounter=0;
 		mi->currentFrame=mi->nextFrame;
-		if(mi->currentFrame>=mi->model->animations[mi->currentAnim].end)
+
+		if(mi->model->animations && mi->currentFrame>=mi->model->animations[mi->currentAnim].end)
 		{
 			if(mi->oneshot){u8 oa=mi->currentAnim;mi->currentAnim=mi->oldAnim;mi->oldAnim=oa;mi->oneshot=false;}
 			mi->nextFrame=mi->model->animations[mi->currentAnim].start;

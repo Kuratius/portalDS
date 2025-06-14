@@ -1,75 +1,89 @@
 #include "common/general.h"
 
 
-state_struct gameState;
-state_struct menuState;
-state_struct editorState;
+state_struct gameState={.init=&initGame, .frame=&gameFrame, .kill=&killGame, .vbl=&gameVBL, .id=0, .mc_id=0};
+state_struct menuState={.init=&initMenu, .frame=&menuFrame, .kill=&killMenu, .vbl=&menuVBL, .id=1, .mc_id=0};
+state_struct editorState={.init=&initEditor, .frame=&editorFrame, .kill=&killEditor, .vbl=&editorVBL, .id=2, .mc_id=0};
+
+
+extern state_struct * current_state;
 
 void doSPALSH()
 {
-	setBrightness(3,-16);
-	swiWaitForVBlank();
-	videoSetMode(MODE_5_2D);
-	videoSetModeSub(MODE_5_2D);
+    setBrightness(3,-16);
+    swiWaitForVBlank();
+    videoSetMode(MODE_5_2D);
+    videoSetModeSub(MODE_5_2D);
 
     vramSetBankA(VRAM_A_MAIN_BG_0x06000000);
     vramSetBankC(VRAM_C_SUB_BG);
 
-	int bg = bgInit(3, BgType_Bmp8, BgSize_B8_256x256, 0,0);
-	struct gl_texture_t* spalsh=(struct gl_texture_t *)ReadPCXFile("spalsh.pcx","");
+    int bg = bgInit(3, BgType_Bmp8, BgSize_B8_256x256, 0,0);
+    struct gl_texture_t* spalsh=(struct gl_texture_t *)ReadPCXFile("spalsh.pcx","");
 
-	dmaCopy(spalsh->texels, bgGetGfxPtr(bg), 256*192);
-	dmaCopy(spalsh->palette, BG_PALETTE, 256*2);
+    dmaCopy(spalsh->texels, bgGetGfxPtr(bg), 256*192);
+    dmaCopy(spalsh->palette, BG_PALETTE, 256*2);
 
-	freePCX(spalsh);
+    freePCX(spalsh);
 
-	int bg_sub = bgInitSub(3, BgType_Bmp8, BgSize_B8_256x256, 0,0);
-	struct gl_texture_t* spalsh_sub=(struct gl_texture_t *)ReadPCXFile("spalsh_bottom.pcx","");
+    int bg_sub = bgInitSub(3, BgType_Bmp8, BgSize_B8_256x256, 0,0);
+    struct gl_texture_t* spalsh_sub=(struct gl_texture_t *)ReadPCXFile("spalsh_bottom.pcx","");
 
-	dmaCopy(spalsh_sub->texels, bgGetGfxPtr(bg_sub), 256*192);
-	dmaCopy(spalsh_sub->palette, BG_PALETTE_SUB, 256*2);
+    dmaCopy(spalsh_sub->texels, bgGetGfxPtr(bg_sub), 256*192);
+    dmaCopy(spalsh_sub->palette, BG_PALETTE_SUB, 256*2);
 
-	freePCX(spalsh_sub);
+    freePCX(spalsh_sub);
 
-	fadeIn();
-	int i;
-	for(i=0;i<60;i++)swiWaitForVBlank();
-	fadeOut();
+    fadeIn();
+    int i;
+    for(i=0;i<60;i++)swiWaitForVBlank();
+    fadeOut();
 }
 
 int main(int argc, char **argv)
 {
-	initHardware();
-	initFilesystem(argc, argv);
+    initHardware();
+    initFilesystem(argc, argv);
 
-	//initAudio();
+#if McuASAN_CONFIG_IS_ENABLED
+    nocashMessage("Init ASAN\n");
+    McuASAN_Init();
+#endif
+    //initAudio();
 
-	createState(&gameState, initGame, gameFrame, killGame, gameVBL);
-	createState(&menuState, initMenu, menuFrame, killMenu, menuVBL);
-	createState(&editorState, initEditor, editorFrame, killEditor, editorVBL);
+    //doSPALSH();
+    nocashMessage("scan keys\n");
+    //TEMP DEBUG
+    scanKeys();
+    scanKeys();
+    scanKeys();
+    scanKeys();
 
-	doSPALSH();
+    if(keysHeld() & KEY_SELECT)
+    {
+        nocashMessage("editorstate\n");
+        changeState(&editorState);
+    }
+    else
+    {
+        nocashMessage("gamestate\n");
+        changeState(&gameState);
+    }
+    nocashMessage("menustate\n");
+    changeState(&menuState);
 
-	//TEMP DEBUG
-	scanKeys();
-	scanKeys();
-	scanKeys();
-	scanKeys();
+    nocashMessage("applystate\n");
+    applyState();
 
-	if(keysHeld() & KEY_SELECT)changeState(&editorState);
-	else changeState(&gameState);
+    while(1)
+    {
+        currentState->init();
+        while(currentState->used)
+            currentState->frame();
 
-	// changeState(&editorState);
-	changeState(&menuState);
-	applyState();
+        currentState->kill();
+        applyState();
+    }
 
-	while(1)
-	{
-		currentState->init();
-		while(currentState->used)currentState->frame();
-		currentState->kill();
-		applyState();
-	}
-
-	return 0;
+    return 0;
 }
