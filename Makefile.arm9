@@ -106,16 +106,16 @@ ASFLAGS		+= -x assembler-with-cpp $(DEFINES) $(INCLUDEFLAGS) \
 		   -specs=$(SPECS)
 
 CFLAGS		+= -std=gnu17 $(WARNFLAGS) $(DEFINES) $(INCLUDEFLAGS) \
-		   $(ARCH) -O3 -save-temps -ffast-math -ffunction-sections -fdata-sections \
+		   $(ARCH) -Os -save-temps -ffast-math -fno-inline -fno-omit-frame-pointer -D_FORTIFY_SOURCE  -ffunction-sections -fdata-sections \
 		   -specs=$(SPECS)
-
+#-fsanitize=undefined -fsanitize-trap  -fsanitize=kernel-address -fstack-protector-strong
 CXXFLAGS	+= -std=gnu++17 $(WARNFLAGS) $(DEFINES) $(INCLUDEFLAGS) \
-		   $(ARCH) -O3 -save-temps -ffast-math -ffunction-sections -fdata-sections \
+		   $(ARCH) -Os -save-temps -ffast-math -ffunction-sections -fdata-sections \
 		   -fno-exceptions -fno-rtti \
 		   -specs=$(SPECS)
 
 LDFLAGS		:= $(ARCH) $(LIBDIRSFLAGS) -Wl,-Map,$(MAP) $(DEFINES) \
-		   -Wl,--start-group $(LIBS) -Wl,--end-group -specs=$(SPECS)
+		   -Wl,--start-group $(LIBS) -Wl,--end-group -specs=$(SPECS) 
 
 # Intermediate build files
 # ------------------------

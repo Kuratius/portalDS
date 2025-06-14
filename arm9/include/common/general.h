@@ -40,6 +40,7 @@
 #include "engine/debug.h"
 #include "engine/memory.h"
 
+#include "McuASAN.h"
 extern state_struct gameState;
 extern state_struct editorState;
 extern state_struct menuState;
