@@ -96,7 +96,7 @@ static char* inputDefaults[]={"CONTROL_STRAFER",
 					"CONTROL_BACK",
 					"CONTROL_STRAFEL",
 					"CONTROL_STRAFER",
-					"CONTROL_SHOOTALL",
+					"CONTROL_USE",
 					"CONTROL_SHOOTALL",
 					"CONTROL_SCREENSHOT",
 					"CONTROL_PAUSE",
@@ -182,13 +182,22 @@ void updateControl(controlInput_type ci)
 		case INPUT_DOUBLETAP:
 			if(keysDown() & KEY_TOUCH)
 			{
-				if(!touchCnt)touchCnt=16;
-				else if(controlFunctions[currentConfiguration[ci]]){controlFunctions[currentConfiguration[ci]](getPlayer(),true,true);touchCnt=0;}
+				if(!touchCnt)
+                    touchCnt=16;
+				else if(controlFunctions[currentConfiguration[ci]])
+                {
+                    controlFunctions[currentConfiguration[ci]](getPlayer(),true,true);
+                    touchCnt=0;
+                }
 			}
-			if(touchCnt)touchCnt--;
+			if(touchCnt)
+                touchCnt--;
 			break;
 		default:
-			if((keysHeld() & inputMasks[ci]) && controlFunctions[currentConfiguration[ci]]){controlFunctions[currentConfiguration[ci]](getPlayer(),(keysDown()&inputMasks[ci]),(keysHeld()&inputMasks[ci]));}
+			if((keysHeld() & inputMasks[ci]) && controlFunctions[currentConfiguration[ci]])
+            {
+                controlFunctions[currentConfiguration[ci]](getPlayer(),(keysDown()&inputMasks[ci]),(keysHeld()&inputMasks[ci]));
+            }
 			break;
 	}
 }
@@ -198,8 +207,10 @@ void updateControls(void)
 {
 
 	int i;
-	for(i=0;i<CONTROLS_NB_CONTROL_FN;i++)controlWasCalled[i]=false;
-	for(i=0;i<INPUT_NUMBER;i++)updateControl(i);
+	for(i=0;i<CONTROLS_NB_CONTROL_FN;i++)
+        controlWasCalled[i]=false;
+	for(i=0;i<INPUT_NUMBER;i++)
+        updateControl(i);
 }
 
 static void controlForward(player_struct* p, bool down, bool held)
@@ -289,7 +300,7 @@ static void controlPause(player_struct* p, bool down, bool held)
 
 static void controlShootAll(player_struct* p, bool down, bool held)
 {
-	if(!p || down )return;
+	if(!p || !down )return;
 
 	if(controlWasCalled[5])
 		return;

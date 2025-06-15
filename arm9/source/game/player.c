@@ -107,8 +107,11 @@ void initPlayer(player_struct* p)
 
 	#ifndef DEBUG_GAME
 		subBG=bgInitSub(3, BgType_Bmp8, BgSize_B8_256x256, 0, 0);
-		dmaCopy(bottomScreenIMG, bgGetGfxPtr(subBG), 256*192);
-		dmaCopy(bottomScreenPAL, BG_PALETTE_SUB, 256*2);
+		//dmaCopy(bottomScreenIMG, bgGetGfxPtr(subBG), 256*192);
+		//dmaCopy(bottomScreenPAL, BG_PALETTE_SUB, 256*2);
+
+		memcpy( bgGetGfxPtr(subBG),bottomScreenIMG, 256*192);
+		memcpy( BG_PALETTE_SUB,bottomScreenPAL, 256*2);
 	#endif
 
 	//TEMP INIT VALUES
@@ -140,27 +143,25 @@ void drawBottomButton(bool color)
 	u16* d=bgGetGfxPtr(subBG);
 	u8* s=bottomButton->texels;
 	if(!color)s+=32*128;
-	int j; for(j=0;j<32;j++)dmaCopy(&s[j*128],&d[32+(j+4)*128],128);
+	int j; 
+    for(j=0;j<32;j++)
+        //dmaCopy(&s[j*128],&d[32+(j+4)*128],128);
+        memcpy(&d[32+(j+4)*128],&s[j*128],128);
 
 	if(color)BG_PALETTE_SUB[0]=RGB15(28,17,3);
 	else BG_PALETTE_SUB[0]=RGB15(6,18,22);
 }
-
+/*
 bool updateBottomScreen(touchPosition* tp)
 {
 	if(!tp)return false;
 
 	bool r=false;
 
-	if(tp->px>=64 && tp->py>=4 && tp->px<=64+128 && tp->py<=4+32)
-	{
-		r=true;
-		if(! (keysUp()&KEY_TOUCH) ){currentPortalColor^=1;}
-		touchCnt=0;
-	}
+
 
 	return r;
-}
+}*/
 
 void drawPlayer(player_struct* p)
 {
@@ -313,13 +314,18 @@ void shootPlayerGun(player_struct* p, bool R, u8 mode)
 extern OBB_struct objects[NUMOBJECTS];
 bool idle;
 
+bool isInsideButton(int x, int y){
+
+    return x>=64 && y>=4 && x<=64+128 && y<=4+32;
+}
+
 void playerControls(player_struct* p)
 {
 	if(!p)p=&player;
 
 	if(p->life<=0)changeState(&gameState);
 
-	scanKeys();
+	//scanKeys();
 	touchRead(&touchCurrent);
 
 	// if(keysDown() & KEY_TOUCH)
@@ -329,29 +335,46 @@ void playerControls(player_struct* p)
 	// 	else {touchCnt=0; p->object->speed=addVect(p->object->speed,vectMult(normGravityVector,-(inttof32(1)>>5)));}
 	// }
 
-	if(!(((keysDown()&KEY_TOUCH) && updateBottomScreen(&touchCurrent)) || updateBottomScreen(&touchOld)) && (keysHeld() & KEY_TOUCH))
-	{
-		int16 dx = touchCurrent.px - touchOld.px;
-		int16 dy = touchCurrent.py - touchOld.py;
+    uint16_t keys_up=keysUp();
+    uint16_t keys_held=keysHeld();
 
-		vect3D angle=vect(0,0,0);
+    static int delay=5;
 
-		if (dx<20 && dx>-20 && dy<20 && dy>-20)
-		{
-			// if(dx>-2&&dx<2)dx=0;
-			// if(dy>-2&&dy<2)dy=0;
+    
 
-			angle.x-=degreesToAngle(dy);
-			angle.y-=degreesToAngle(dx);
-		}
-		p->tempAngle=addVect(p->tempAngle,angle);
+    if(delay<=0 && (keys_held & KEY_TOUCH) && isInsideButton(touchCurrent.px, touchCurrent.py) && isInsideButton(touchOld.px, touchOld.py))
+    {
+        currentPortalColor^=1;
+        touchCnt=0;
+        delay=5;        
+    }
 
-		int32 tempMatrix[9];
-		int32* m=getPlayerCamera()->transformationMatrix;
-		memcpy(tempMatrix,m,9*sizeof(int32));
-		rotateCamera(NULL, angle);
-		if(m[4]<0 && m[4]<tempMatrix[4])memcpy(m,tempMatrix,9*sizeof(int32));
-	}
+    if (keys_held & KEY_TOUCH ){
+	    int16 dx = touchCurrent.px - touchOld.px;
+	    int16 dy = touchCurrent.py - touchOld.py;
+
+	    vect3D angle=vect(0,0,0);
+
+	    if (dx<20 && dx>-20 && dy<20 && dy>-20)
+	    {
+		    // if(dx>-2&&dx<2)dx=0;
+		    // if(dy>-2&&dy<2)dy=0;
+
+		    angle.x-=degreesToAngle(dy);
+		    angle.y-=degreesToAngle(dx);
+	    }
+	    p->tempAngle=addVect(p->tempAngle,angle);
+
+	    int32 tempMatrix[9];
+	    int32* m=getPlayerCamera()->transformationMatrix;
+	    memcpy(tempMatrix,m,9*sizeof(int32));
+	    rotateCamera(NULL, angle);
+	    if(m[4]<0 && m[4]<tempMatrix[4])memcpy(m,tempMatrix,9*sizeof(int32));
+   
+       
+    }
+    if(delay>0)delay--;
+	
 
 	// if(keysHeld()&(KEY_A))rotateCamera(NULL, vect(0,0,-(1<<8)));
 	// if(keysHeld()&(KEY_Y))rotateCamera(NULL, vect(0,0,1<<8));
