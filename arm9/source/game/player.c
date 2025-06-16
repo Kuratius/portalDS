@@ -338,15 +338,11 @@ void playerControls(player_struct* p)
     uint16_t keys_up=keysUp();
     uint16_t keys_held=keysHeld();
 
-    static int delay=5;
-
-    
-
-    if(delay<=0 && (keys_held & KEY_TOUCH) && isInsideButton(touchCurrent.px, touchCurrent.py) && isInsideButton(touchOld.px, touchOld.py))
+    if((keys_up & KEY_TOUCH ) && isInsideButton(touchOld.px, touchOld.py))
     {
         currentPortalColor^=1;
         touchCnt=0;
-        delay=5;        
+
     }
 
     if (keys_held & KEY_TOUCH ){
@@ -373,9 +369,6 @@ void playerControls(player_struct* p)
    
        
     }
-    if(delay>0)delay--;
-	
-
 	// if(keysHeld()&(KEY_A))rotateCamera(NULL, vect(0,0,-(1<<8)));
 	// if(keysHeld()&(KEY_Y))rotateCamera(NULL, vect(0,0,1<<8));
 	// if(p->object->contact)
