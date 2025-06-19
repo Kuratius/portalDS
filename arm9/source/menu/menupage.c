@@ -111,7 +111,7 @@ static void mainMenuCreateButtonFunction(sguiButton_struct* b)
 
 static void playMenuCampaignButtonFunction(sguiButton_struct* b)
 {
-	setMapFilePath("maps/test1.map");
+	setMapFilePath("maps/test01.map");
 	changeState(&gameState);
 }
 
