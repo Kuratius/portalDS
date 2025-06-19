@@ -351,7 +351,7 @@ void playerControls(player_struct* p)
 
 	    vect3D angle=vect(0,0,0);
 
-	    if (dx<20 && dx>-20 && dy<20 && dy>-20)
+	    if (dx<50 && dx>-50 && dy<50 && dy>-50)
 	    {
 		    // if(dx>-2&&dx<2)dx=0;
 		    // if(dy>-2&&dy<2)dy=0;
