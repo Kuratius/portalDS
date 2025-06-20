@@ -27,3 +27,12 @@ Acknowledgements :
 - xmem.c was written by SunDEV
 
 Please let me know if you think I missed anything.
+
+=======
+Controls
+ABXY/D-pad for movement
+Touch screen for camera control
+Touch screen button is for switching portal color
+L/R for shooting portals
+This may change. Currently shooting portals can double as a use/gravity gun button.
+
