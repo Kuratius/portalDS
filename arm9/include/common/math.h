@@ -89,7 +89,8 @@ static inline int32 distance(vect3D p1, vect3D p2)
 
 static inline int32 magnitude(vect3D p1)
 {
-	return sqrtf32(mulf32((p1.x),(p1.x))+mulf32((p1.y),(p1.y))+mulf32((p1.z),(p1.z)));
+	//return sqrtf32(mulf32((p1.x),(p1.x))+mulf32((p1.y),(p1.y))+mulf32((p1.z),(p1.z)));
+	return sqrt64((int64_t)p1.x*p1.x  +(int64_t)p1.y*p1.y  +(int64_t)p1.z*p1.z);
 }
 
 static inline int32 sqMagnitude(vect3D p1)
@@ -104,7 +105,7 @@ static inline vect3D divideVect(vect3D v, int32 d)
 
 static inline vect3D normalize(vect3D v)
 {
-	return divideVect(v,sqrtf32(mulf32((v.x),(v.x))+mulf32((v.y),(v.y))+mulf32((v.z),(v.z))));
+	return divideVect(v,  magnitude(v) );
 }
 
 static inline int32 dotProduct(vect3D v1, vect3D v2)
