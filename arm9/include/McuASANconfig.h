@@ -34,7 +34,7 @@
 #endif
 
 #ifndef McuASAN_CONFIG_FREE_QUARANTINE_LIST_SIZE
-  #define McuASAN_CONFIG_FREE_QUARANTINE_LIST_SIZE  (0)
+  #define McuASAN_CONFIG_FREE_QUARANTINE_LIST_SIZE  (9)
   /*!< list of free blocks in quarantine until they are released. Use 0 for no list. */
 #endif
 
