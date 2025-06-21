@@ -436,16 +436,22 @@ void renderModelFrameInterp(int n, int n2, int m, const md2Model_struct *mdl, u3
 	if (!mdl) return;
 	glPolyFmt(params);
 
-	n%=mdl->header.num_frames;
-	n2%=mdl->header.num_frames;
+	n  %= mdl->header.num_frames;
+	n2 %= mdl->header.num_frames;
 	
-	if ((n < 0) || (n > mdl->header.num_frames - 1))return;
-	if ((n2 < 0) || (n2 > mdl->header.num_frames - 1))return;
+	if ((n < 0) || (n > mdl->header.num_frames - 1))
+        return;
+	if ((n2 < 0) || (n2 > mdl->header.num_frames - 1))
+        return;
 	if (m<0 || m>3)return;
 
 	if(n==n2)m=0;
 	md2_frame_t *pframe=&mdl->frames[n];
-	if(pframe->displayList[m])n2=pframe->next;	
+	if(pframe->displayList[m])
+    {
+        n2=pframe->next;//updating n2 here can set it it of bounds
+	    n2 %= mdl->header.num_frames; //so we fix it again
+    }
 	md2_frame_t *pframe2=&mdl->frames[n2];
 
     if (mdl->texture)
