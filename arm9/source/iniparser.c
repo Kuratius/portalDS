@@ -603,10 +603,10 @@ dictionary * iniparser_load(const char * ininame)
         return NULL ;
     }
 
-    memset(line,    0, ASCIILINESZ);
-    memset(section, 0, ASCIILINESZ);
-    memset(key,     0, ASCIILINESZ);
-    memset(val,     0, ASCIILINESZ);
+    memset(line,    0, ASCIILINESZ+1);
+    memset(section, 0, ASCIILINESZ+1);
+    memset(key,     0, ASCIILINESZ+1);
+    memset(val,     0, ASCIILINESZ+1);
     last=0 ;
 
     while (fgets(line+last, ASCIILINESZ-last, in)!=NULL) {
@@ -739,10 +739,10 @@ dictionary * iniparser_loadBUFF(char* buffer)
         return NULL ;
     }
 
-    memset(line,    0, ASCIILINESZ);
-    memset(section, 0, ASCIILINESZ);
-    memset(key,     0, ASCIILINESZ);
-    memset(val,     0, ASCIILINESZ);
+    memset(line,    0, ASCIILINESZ+1);
+    memset(section, 0, ASCIILINESZ+1);
+    memset(key,     0, ASCIILINESZ+1);
+    memset(val,     0, ASCIILINESZ+1);
     last=0 ;
 	int cursor=0;
     while (bgets(line+last, ASCIILINESZ-last, &buffer[cursor], &cursor)!=NULL)
