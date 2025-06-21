@@ -280,9 +280,9 @@ void drawRect(rectangle_struct rec, vect3D pos, vect3D size, bool c) //TEMP ? (c
 				for(i=0;i<rec.lightData.vertex->height;i++)
 				{
 
-					vect3D vtest1=vect(tp.x+vt2.x,tp.y+vt2.y,0);
-					vect3D vtest2=vect(tp.x,tp.y,0);
-					int32 v=max(max(abs(vtest1.x),abs(vtest1.y)),max(abs(vtest2.x),abs(vtest2.y)));
+					//vect3D vtest1=vect(tp.x+vt2.x,tp.y+vt2.y,0);
+					//vect3D vtest2=vect(tp.x,tp.y,0);
+					//int32 v=max(max(abs(vtest1.x),abs(vtest1.y)),max(abs(vtest2.x),abs(vtest2.y)));
 					// if(v>=32768){iprintf("lala %ld %ld %d %d \n",tp.x,tp.y,inttot16(tw),inttot16(th));continue;}
 
 					// vc=&rec.lightData.vertex->values[(k++)+rec.lightData.vertex->height];

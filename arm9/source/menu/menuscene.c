@@ -220,7 +220,7 @@ void screenListMove(screenList_struct* sl, s8 move)
 
 void updateScreenList(screenList_struct* sl)
 {
-	if(!sl || !sl->title || !sl->list)return;
+	if(!sl || !sl->list)return;
 
 	resetSceneScreen();
 

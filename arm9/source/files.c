@@ -14,17 +14,23 @@ u32 getFileSize(FILE *file) {
 bool initFilesystem(int argc, char **argv)
 {
 	bool saveAvailable;
-	u8 fsMode;
+
 	#ifndef FATONLY
+	//u8 fsMode;
 		basePath = fatGetDefaultCwd();
 		if(nitroFSInit(NULL))
 		{
 			printf("init : done");
 			chdir("nitro:/");
 			chdir(ROOT);
-			if(!argv){saveAvailable=false;fsMode=1;} // no fat but nitro (gba slot)
-			else{
-				fsMode=2; // nitro and fat
+			if(!argv)
+            {
+                saveAvailable=false;
+                //fsMode=1;
+            } // no fat but nitro (gba slot)
+			else
+            {
+				//fsMode=2; // nitro and fat
 				saveAvailable=true;
 				chdir(basePath);
 				int r=mkdir("asds", S_IRWXU|S_IRGRP|S_IXGRP);//!ROOT!
@@ -39,8 +45,8 @@ bool initFilesystem(int argc, char **argv)
 			}
 			return true;
 		}
+	//fsMode=3; // fat only ?
 	#endif
-	fsMode=3; // fat only ?
 	saveAvailable=false;
 	if(!fatInitDefault())return false;
 	saveAvailable=true;

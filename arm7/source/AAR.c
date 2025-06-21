@@ -409,7 +409,7 @@ void AARsOBBContacts(OBB_struct* o, bool sleep)
 	getOBBVertices(o,v);
 	if(!sleep)
 	{
-		u16 x, X, z, Z;
+		u16 x=0;u16 X=0;u16 z=0;u16 Z=0;
 		getOBBNodes(NULL, o, &x, &X, &z, &Z);
 		bool lalala[NUMAARS];
 		for(i=0;i<NUMAARS;i++)lalala[i]=0;

@@ -566,11 +566,22 @@ dictionary * iniparser_load(const char * ininame)
 {
     FILE * in ;
 
+    char * base=malloc(ASCIILINESZ*6+6);
+
+#if 1
+    char *line =base;
+    char *section =base+(ASCIILINESZ+1);
+    char *key =section+(ASCIILINESZ+1);
+    char *tmp =key+(ASCIILINESZ+1);
+    char *val =tmp+(ASCIILINESZ*2+2);
+
+#else
     char line    [ASCIILINESZ+1] ;
     char section [ASCIILINESZ+1] ;
     char key     [ASCIILINESZ+1] ;
-    char tmp     [ASCIILINESZ+1] ;
+    char tmp     [ASCIILINESZ*2+2] ;
     char val     [ASCIILINESZ+1] ;
+#endif
 
     int  last=0 ;
     int  len ;
@@ -581,12 +592,14 @@ dictionary * iniparser_load(const char * ininame)
 
     if ((in=fopen((char*)ininame, "r"))==NULL) {
         fprintf(stderr, "iniparser: cannot open %s\n", ininame);
+        free(base);
         return NULL ;
     }
 
     dict = dictionary_new(0) ;
     if (!dict) {
         fclose(in);
+        free(base);
         return NULL ;
     }
 
@@ -607,6 +620,7 @@ dictionary * iniparser_load(const char * ininame)
                     lineno);
             dictionary_del(dict);
             fclose(in);
+            free(base);
             return NULL ;
         }
         /* Get rid of \n and spaces at end of line */
@@ -660,6 +674,7 @@ dictionary * iniparser_load(const char * ininame)
         dict = NULL ;
     }
     fclose(in);
+    free(base);
     return dict ;
 }
 
@@ -689,11 +704,24 @@ char * bgets ( char * str, int num, char* buffer, int* cursor)
 /*--------------------------------------------------------------------------*/
 dictionary * iniparser_loadBUFF(char* buffer)
 {
+
+
+    char * base=malloc(ASCIILINESZ*6+6);
+
+#if 1
+    char *line =base;
+    char *section =base+(ASCIILINESZ+1);
+    char *key =section+(ASCIILINESZ+1);
+    char *tmp =key+(ASCIILINESZ+1);
+    char *val =tmp+(ASCIILINESZ*2+2);
+
+#else
     char line    [ASCIILINESZ+1] ;
     char section [ASCIILINESZ+1] ;
     char key     [ASCIILINESZ+1] ;
-    char tmp     [ASCIILINESZ+1] ;
+    char tmp     [ASCIILINESZ*2+2] ;
     char val     [ASCIILINESZ+1] ;
+#endif
 
     int  last=0 ;
     int  len ;
@@ -707,6 +735,7 @@ dictionary * iniparser_loadBUFF(char* buffer)
     dict = dictionary_new(0) ;
     if (!dict) {
 		printf("pb1\n");
+        free(base);
         return NULL ;
     }
 
@@ -730,6 +759,7 @@ dictionary * iniparser_loadBUFF(char* buffer)
                     lineno);
             dictionary_del(dict);
             // fclose(in);
+            free(base);
             return NULL ;
         }
         /* Get rid of \n and spaces at end of line */
@@ -783,6 +813,7 @@ dictionary * iniparser_loadBUFF(char* buffer)
         dict = NULL ;
     }
     // fclose(in);
+    free(base);
     return dict ;
 }
 

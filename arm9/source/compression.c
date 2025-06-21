@@ -82,7 +82,7 @@ uint32_t compressRLE(u16 **dst, u16 *srcD, uint32_t srcS)
 			{
 				dstL[0]= 0x80 | (rle-3);
 				dstL[1]= srcD[ii-1];
-				NOGBA("RLE1 : %d %d",rle,dstL[1]);
+				NOGBA("RLE1 : %lu %d",rle,dstL[1]);
 				dstL += 2;
 				non= 0;
 				rle= 1;

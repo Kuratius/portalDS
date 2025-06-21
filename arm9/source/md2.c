@@ -288,6 +288,8 @@ void generateFrameDisplayList(int n, const md2Model_struct *mdl, u8 normals)
 	md2_frame_t *pframe=&mdl->frames[n];
 	
 	u32* ptr=glBeginListDL();
+    if (!ptr)
+        return;
 	glBeginDL(GL_TRIANGLES);
 	for (i = 0; i < mdl->header.num_tris; ++i)
 	{
@@ -301,7 +303,8 @@ void generateFrameDisplayList(int n, const md2Model_struct *mdl, u8 normals)
 	// glEndDL();
 	u32 size=glEndListDL();
 	pframe->displayList[0]=malloc((size+1)*4);
-	if(pframe->displayList)memcpy(pframe->displayList[0],ptr,(size+1)*4);
+	if(pframe->displayList[0])
+        memcpy(pframe->displayList[0],ptr,(size+1)*4);
 }
 
 void generateFrameDisplayListInterp(int n, int n2, int m, const md2Model_struct *mdl, u8 normals)
@@ -336,7 +339,8 @@ void generateFrameDisplayListInterp(int n, int n2, int m, const md2Model_struct 
 	// glEndDL();
 	u32 size=glEndListDL();
 	pframe->displayList[m]=malloc((size+1)*4);
-	if(pframe->displayList)memcpy(pframe->displayList[m],ptr,(size+1)*4);
+	if(pframe->displayList[m])
+        memcpy(pframe->displayList[m],ptr,(size+1)*4);
 }
 
 void generateModelDisplayLists(md2Model_struct *mdl, bool interp, u8 normals)
@@ -464,7 +468,7 @@ void renderModelFrameInterp(int n, int n2, int m, const md2Model_struct *mdl, u3
         int x=pframe->translate.x;
 
         NOGBA("bp2.4\n");
-        NOGBA("bp2.45 %d \n", pframe2->translate.x);
+        NOGBA("bp2.45 %ld \n", pframe2->translate.x);
         x+=((pframe2->translate.x-pframe->translate.x)*m)/4;
         NOGBA("bp2.5\n");
         int y=pframe->translate.y+((pframe2->translate.y-pframe->translate.y)*m)/4;
