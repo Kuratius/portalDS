@@ -662,7 +662,7 @@ dictionary * iniparser_load(const char * ininame)
             default:
             break ;
         }
-        memset(line, 0, ASCIILINESZ);
+        memset(line, 0, ASCIILINESZ+1);
         last=0;
         if (errs<0) {
             fprintf(stderr, "iniparser: memory allocation failure\n");
@@ -801,7 +801,7 @@ dictionary * iniparser_loadBUFF(char* buffer)
             default:
             break ;
         }
-        memset(line, 0, ASCIILINESZ);
+        memset(line, 0, ASCIILINESZ+1);
         last=0;
         if (errs<0) {
             printf("iniparser: memory allocation failure\n");
