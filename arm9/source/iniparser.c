@@ -624,12 +624,15 @@ dictionary * iniparser_load(const char * ininame)
             return NULL ;
         }
         /* Get rid of \n and spaces at end of line */
-        while ((len>=0) &&
-                ((line[len]=='\n') || (isspace((int)line[len])))) {
+        //this parser probably needs to be rewritten, len can end up negative 
+        while ((len>0) && ((line[len]=='\n') || (isspace((int)line[len]))))
+        {
             line[len]=0 ;
             len-- ;
         }
+
         /* Detect multi-line */
+        //if len is negative here, this is out of bounds
         if (line[len]=='\\') {
             /* Multi-line value */
             last=len ;
@@ -637,7 +640,8 @@ dictionary * iniparser_load(const char * ininame)
         } else {
             last=0 ;
         }
-        switch (iniparser_line(line, section, key, val)) {
+        switch (iniparser_line(line, section, key, val)) 
+        {
             case LINE_EMPTY:
             case LINE_COMMENT:
             break ;
@@ -669,6 +673,7 @@ dictionary * iniparser_load(const char * ininame)
             break ;
         }
     }
+
     if (errs) {
         dictionary_del(dict);
         dict = NULL ;
@@ -763,12 +768,15 @@ dictionary * iniparser_loadBUFF(char* buffer)
             return NULL ;
         }
         /* Get rid of \n and spaces at end of line */
-        while ((len>=0) &&
-                ((line[len]=='\n') || (isspace((int)line[len])))) {
+
+        //this parser probably needs to be rewritten, len can end up negative 
+        while ((len>0) && ((line[len]=='\n') || (isspace((int)line[len]))))
+        {
             line[len]=0 ;
             len-- ;
         }
         /* Detect multi-line */
+        //if len is negative here, this is out of bounds
         if (line[len]=='\\') {
             /* Multi-line value */
             last=len ;
