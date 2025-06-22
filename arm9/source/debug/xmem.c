@@ -14,6 +14,8 @@ extern u8 __eheap_end[];    // farthest point to which the heap will grow
 
 size_t latestUsed, latestFree;
 
+/*
+
 u8 *getHeapStart() {
 	return __end__;
 }
@@ -25,6 +27,8 @@ u8 *getHeapEnd() {
 u8 *getHeapLimit() {
 	return __eheap_end;
 }
+
+*/
 
 size_t getMemUsed() {
 	struct mallinfo mi = mallinfo();
