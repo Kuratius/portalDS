@@ -232,19 +232,18 @@ __attribute__((no_sanitize ("kernel-address"))) static bool SlowPathCheck(int8_t
  */
 }
 
-static void ReportError(void *address, size_t kAccessSize, rw_mode_e mode) {
+__attribute__((no_sanitize ("kernel-address"))) static void ReportError(void *address, size_t kAccessSize, rw_mode_e mode) {
 
   if (address >= getHeapStart() && address<= (void *)0x2FF0000){
 
     McuLog_fatal("ASAN ptr failure: addr %p, %s, size: %d", address, mode==kIsRead?"read":"write", kAccessSize);
     NOGBA("stuck!\n");
+    NOGBA("shadow memory is %p, %02hhx\n", MemToShadow(address), *MemToShadow(address));
+    NOGBA("shadow memory is %p, %02hhx\n", MemToShadow(address+kAccessSize-1), *MemToShadow(address+kAccessSize-1));
     //volatile int* nullp=NULL;
     //*nullp=4;
-    //while(1);  
-  } else{
-    //McuLog_fatal("ASAN static ptr failure: addr %p, %s, size: %d", address, mode==kIsRead?"read":"write", kAccessSize);
- }
-  //__asm volatile("bkpt #0"); /* stop application if debugger is attached */
+    while(1);  
+  } 
 }
 
 __attribute__((no_sanitize ("kernel-address")))void CheckShadow(void *address, size_t kAccessSize, rw_mode_e mode) 
