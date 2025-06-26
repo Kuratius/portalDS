@@ -105,7 +105,23 @@ static inline vect3D divideVect(vect3D v, int32 d)
 
 static inline vect3D normalize(vect3D v)
 {
-	return divideVect(v,  magnitude(v) );
+    if ( sizeof(vect3D)==3*(sizeof(int32_t)) )
+    {
+        normalizef32(&v);
+        return v;
+    } 
+    else 
+    {
+        int32_t a[3];
+        a[0]=v.x;
+        a[1]=v.y;
+        a[2]=v.z;
+        normalizef32(&a);
+        v.x=a[0];
+        v.y=a[1];
+        v.z=a[2];
+        return v;
+    }
 }
 
 static inline int32 dotProduct(vect3D v1, vect3D v2)
