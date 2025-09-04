@@ -173,7 +173,7 @@ void toggleAAR(u16 id)
 	aaRectangles[id].used^=1;
 }
 
-bool pointInPortal(portal_struct* p, vect3D pos) //assuming correct normal
+ARM_CODE bool pointInPortal(portal_struct* p, vect3D pos) //assuming correct normal
 {
 	if(!p)return false;
 	const vect3D v2=vectDifference(pos, p->position); //then, project onto portal base
@@ -181,7 +181,7 @@ bool pointInPortal(portal_struct* p, vect3D pos) //assuming correct normal
 	return (abs(v.z)<16 && v.y>-PORTALSIZEY*4 && v.y<PORTALSIZEY*4 && v.x>-PORTALSIZEX*4 && v.x<PORTALSIZEX*4);
 }
 
-void OBBAARContacts(AAR_struct* a, OBB_struct* o, bool port)
+ARM_CODE void OBBAARContacts(AAR_struct* a, OBB_struct* o, bool port)
 {
 	if(!a || !o || !o->used || !a->used)return;
 
@@ -282,7 +282,7 @@ void OBBAARContacts(AAR_struct* a, OBB_struct* o, bool port)
 	}
 }
 
-bool AAROBBContacts(AAR_struct* a, OBB_struct* o, vect3D* v, bool port)
+ARM_CODE bool AAROBBContacts(AAR_struct* a, OBB_struct* o, vect3D* v, bool port)
 {
 	if(!a || !o || !o->used || !a->used)return false;
 
@@ -457,7 +457,7 @@ void fixAAR(AAR_struct* a)
 	if(a->size.z<0){a->position.z+=a->size.z;a->size.z=-a->size.z;}
 }
 
-void generateGuidAAR(portal_struct* p)
+ARM_CODE void generateGuidAAR(portal_struct* p)
 {
 	if(!p)return;
 
