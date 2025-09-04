@@ -79,12 +79,20 @@ static inline vect3D vectDifference(vect3D p1, vect3D p2)
 
 static inline int32 sqDistance(vect3D p1, vect3D p2)
 {
-	return (mulf32((p1.x-p2.x),(p1.x-p2.x))+mulf32((p1.y-p2.y),(p1.y-p2.y))+mulf32((p1.z-p2.z),(p1.z-p2.z)));
+    int32_t xdiff=(p1.x-p2.x);
+    int32_t ydiff=(p1.y-p2.y);
+    int32_t zdiff=(p1.z-p2.z);
+	//return (mulf32((p1.x-p2.x),(p1.x-p2.x))+mulf32((p1.y-p2.y),(p1.y-p2.y))+mulf32((p1.z-p2.z),(p1.z-p2.z)));
+    return ((int64_t)xdiff*xdiff+(int64_t)ydiff*ydiff+(int64_t)zdiff*zdiff)>>12;
 }
 
 static inline int32 distance(vect3D p1, vect3D p2)
 {
-	return sqrtf32(mulf32((p1.x-p2.x),(p1.x-p2.x))+mulf32((p1.y-p2.y),(p1.y-p2.y))+mulf32((p1.z-p2.z),(p1.z-p2.z)));
+    int32_t xdiff=(p1.x-p2.x);
+    int32_t ydiff=(p1.y-p2.y);
+    int32_t zdiff=(p1.z-p2.z);
+	//return sqrtf32(mulf32((p1.x-p2.x),(p1.x-p2.x))+mulf32((p1.y-p2.y),(p1.y-p2.y))+mulf32((p1.z-p2.z),(p1.z-p2.z)));
+	return sqrt64((int64_t)xdiff*xdiff+(int64_t)ydiff*ydiff+(int64_t)zdiff*zdiff);
 }
 
 static inline int32 magnitude(vect3D p1)
@@ -95,7 +103,8 @@ static inline int32 magnitude(vect3D p1)
 
 static inline int32 sqMagnitude(vect3D p1)
 {
-	return (mulf32((p1.x),(p1.x))+mulf32((p1.y),(p1.y))+mulf32((p1.z),(p1.z)));
+	//return (mulf32((p1.x),(p1.x))+mulf32((p1.y),(p1.y))+mulf32((p1.z),(p1.z)));
+	return ((int64_t)p1.x*p1.x  +(int64_t)p1.y*p1.y  +(int64_t)p1.z*p1.z)>>12;
 }
 
 static inline vect3D divideVect(vect3D v, int32 d)
@@ -126,17 +135,23 @@ static inline vect3D normalize(vect3D v)
 
 static inline int32 dotProduct(vect3D v1, vect3D v2)
 {
-	return (mulf32(v1.x,v2.x)+mulf32(v1.y,v2.y)+mulf32(v1.z,v2.z));
+	//return (mulf32(v1.x,v2.x)+mulf32(v1.y,v2.y)+mulf32(v1.z,v2.z));
+    return ((int64_t)v1.x*v2.x+(int64_t)v1.y*v2.y+(int64_t)v1.z*v2.z)>>12;
 }
 
 static inline vect3D vectProduct(vect3D v1, vect3D v2)
 {
-	return vect(mulf32(v1.y,v2.z)-mulf32(v1.z,v2.y),mulf32(v1.z,v2.x)-mulf32(v1.x,v2.z),mulf32(v1.x,v2.y)-mulf32(v1.y,v2.x));
+	//return vect(mulf32(v1.y,v2.z)-mulf32(v1.z,v2.y),mulf32(v1.z,v2.x)-mulf32(v1.x,v2.z),mulf32(v1.x,v2.y)-mulf32(v1.y,v2.x));
+    int32_t a[3]={v1.x,v1.y,v1.z};
+    int32_t b[3]={v2.x,v2.y,v2.z};
+    int32_t result[3];
+    crossf32(&a[0], &b[0], &result[0]);
+    return vect(result[0], result[1], result[2]);
 }
 
 static inline int32 fakeDotProduct(vect3D v1, vect3D v2)
 {
-	return ((v1.x*v2.x)+(v1.y*v2.y)+(v1.z*v2.z));
+	return ((int64_t)v1.x*v2.x+(int64_t)v1.y*v2.y+(int64_t)v1.z*v2.z);
 }
 
 static inline bool equals(int32 a, int32 b)
