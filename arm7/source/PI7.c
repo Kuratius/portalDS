@@ -24,7 +24,7 @@ bool getPI7Status(void)
 	return PI7running;
 }
 
-void listenPI7(void)
+ARM_CODE void listenPI7(void)
 {
 	while(fifoCheckValue32(FIFO_USER_08))
 	{
