@@ -11,7 +11,7 @@ void initPlatforms(void)
 	}
 }
 
-void initPlatform(platform_struct* pf, vect3D orig, vect3D dest, bool BAF)
+ARM_CODE void initPlatform(platform_struct* pf, vect3D orig, vect3D dest, bool BAF)
 {
 	if(!pf)return;
 	
@@ -56,7 +56,7 @@ void togglePlatform(u8 id, bool active)
 	platform[id].active=active;
 }
 
-void updatePlatform(platform_struct* pf)
+ARM_CODE void updatePlatform(platform_struct* pf)
 {
 	if(!pf)return;
 	
