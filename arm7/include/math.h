@@ -76,18 +76,18 @@ static inline vect3D vectDifference(vect3D p1, vect3D p2)
 
 static inline int32 dotProduct(vect3D v1, vect3D v2)
 {
-	return (mulf32(v1.x,v2.x)+mulf32(v1.y,v2.y)+mulf32(v1.z,v2.z));
+	return ((int64_t)v1.x*v2.x+(int64_t)v1.y*v2.y+(int64_t)v1.z*v2.z)>>12;
 }
 
 static inline vect3D normalize(vect3D v)
 {
-	int32 d=sqrtv(mulf32(v.x,v.x)+mulf32(v.y,v.y)+mulf32(v.z,v.z));
+	int32 d=sqrtv(((int64_t)v.x*v.x+(int64_t)v.y*v.y+(int64_t)v.z*v.z)>>12);
 	return vect(divv16(v.x,d),divv16(v.y,d),divv16(v.z,d));
 }
 
 static inline int32 magnitude(vect3D v)
 {
-	int32 d=sqrtv(mulf32(v.x,v.x)+mulf32(v.y,v.y)+mulf32(v.z,v.z));
+	int32 d=sqrtv(((int64_t)v.x*v.x+(int64_t)v.y*v.y+(int64_t)v.z*v.z)>>12);
 	return d;
 }
 
@@ -103,7 +103,7 @@ static inline vect3D divideVect(vect3D v, int32 d)
 
 static inline vect3D vectProduct(vect3D v1, vect3D v2)
 {
-	return vect(mulf32(v1.y,v2.z)-mulf32(v1.z,v2.y),mulf32(v1.z,v2.x)-mulf32(v1.x,v2.z),mulf32(v1.x,v2.y)-mulf32(v1.y,v2.x));
+	return vect(((int64_t)v1.y*v2.z+(int64_t)v1.z*-v2.y)>>12,((int64_t)v1.z*v2.x+(int64_t)-v1.x*v2.z)>>12,((int64_t)-v1.x*-v2.y+(int64_t)-v1.y*v2.x)>>12);
 }
 
 // static inline int cosLerp(int32 x){return floattof32(cos((x*PI)/16384));}
@@ -116,13 +116,13 @@ static inline void multMatrix33(int32* m1, int32* m2, int32* m) //3x3
 {
 	int i, j;
 	// for(i=0;i<4;i++)for(j=0;j<4;j++)m[i+j*4]=m1[i+0*4]*m2[0+j*4]+m1[i+1*4]*m2[1+j*4]+m1[i+2*4]*m2[2+j*4]+m1[i+3*4]*m2[3+j*4];
-	for(i=0;i<3;i++)for(j=0;j<3;j++)m[j+i*3]=mulf32(m1[0+i*3],m2[j+0*3])+mulf32(m1[1+i*3],m2[j+1*3])+mulf32(m1[2+i*3],m2[j+2*3]);
+	for(i=0;i<3;i++)for(j=0;j<3;j++)m[j+i*3]=((int64_t)m1[0+i*3]*m2[j+0*3]+(int64_t)m1[1+i*3]*m2[j+1*3]+(int64_t)m1[2+i*3]*m2[j+2*3])>>12;
 }
 
 static inline void multMatrix332(int32* m1, int32* m2, int32* m) //3x3
 {
 	int i, j;
-	for(i=0;i<3;i++)for(j=0;j<3;j++)m[i+j*3]=mulf32(m1[i+0*3],m2[0+j*3])+mulf32(m1[i+2*3],m2[2+j*3])+mulf32(m1[i+2*3],m2[2+j*3]);
+	for(i=0;i<3;i++)for(j=0;j<3;j++)m[i+j*3]=((int64_t)m1[i+0*3]*m2[0+j*3]+(int64_t)m1[i+2*3]*m2[2+j*3]+(int64_t)m1[i+2*3]*m2[2+j*3])>>12;
 }
 
 static inline void addMatrix33(int32* m1, int32* m2, int32* m) //3x3
@@ -139,9 +139,9 @@ static inline void transposeMatrix33(int32* m1, int32* m2) //3x3
 
 static inline vect3D evalVectMatrix33(int32* m, vect3D v) //3x3
 {
-	return vect((mulf32(v.x,m[0])+mulf32(v.y,m[1])+mulf32(v.z,m[2])),
-				(mulf32(v.x,m[3])+mulf32(v.y,m[4])+mulf32(v.z,m[5])),
-				(mulf32(v.x,m[6])+mulf32(v.y,m[7])+mulf32(v.z,m[8])));
+	return vect(((int64_t)v.x*m[0]+(int64_t)v.y*m[1]+(int64_t)v.z*m[2])>>12,
+				((int64_t)v.x*m[3]+(int64_t)v.y*m[4]+(int64_t)v.z*m[5])>>12,
+				((int64_t)v.x*m[6]+(int64_t)v.y*m[7]+(int64_t)v.z*m[8])>>12);
 }
 
 static inline int32 clamp(int32 v, int32 m, int32 M)
