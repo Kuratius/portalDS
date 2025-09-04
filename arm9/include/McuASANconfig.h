@@ -8,7 +8,7 @@
 #define MCUASANCONFIG_H_
 
 #ifndef McuASAN_CONFIG_IS_ENABLED
-  #define McuASAN_CONFIG_IS_ENABLED     (0)
+  #define McuASAN_CONFIG_IS_ENABLED     (1)
   /*!< 1: ASAN is enabled; 0: ASAN is disabled */
 #endif
 
@@ -18,23 +18,24 @@
 #endif
 
 #ifndef McuASAN_CONFIG_APP_MEM_START
-  #define McuASAN_CONFIG_APP_MEM_START (0x2000000) //(0x1000000) //0x20000000
+  #define McuASAN_CONFIG_APP_MEM_START (0x2000000ull) //DSi main memory starts here
   /*!< base RAM address */
 #endif
 
 #ifndef McuASAN_CONFIG_APP_MEM_SIZE
-  #define McuASAN_CONFIG_APP_MEM_SIZE  ((0x0000000)+16*1024*1024)
+  #define McuASAN_CONFIG_APP_MEM_SIZE  (16*1024*1024ull) //Nintendo DSi has close to 16 MiB of ram
   /*!< Memory size in bytes */
 #endif
 
 #if McuASAN_CONFIG_CHECK_MALLOC_FREE
 #ifndef McuASAN_CONFIG_MALLOC_RED_ZONE_BORDER
-  #define McuASAN_CONFIG_MALLOC_RED_ZONE_BORDER  (8)
-  /*!< red zone border in bytes around memory blocks. Must be larger than sizeof(size_t)! */
+  #define McuASAN_CONFIG_MALLOC_RED_ZONE_BORDER  (8ull)
+  //red zone border in bytes around memory blocks. Must be larger than sizeof(size_t)! 
+  //must also be a multiple of the fundamental alignment given by malloc()
 #endif
 
 #ifndef McuASAN_CONFIG_FREE_QUARANTINE_LIST_SIZE
-  #define McuASAN_CONFIG_FREE_QUARANTINE_LIST_SIZE  (9)
+  #define McuASAN_CONFIG_FREE_QUARANTINE_LIST_SIZE  (7)
   /*!< list of free blocks in quarantine until they are released. Use 0 for no list. */
 #endif
 
