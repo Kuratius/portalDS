@@ -29,7 +29,7 @@ static inline int32 divv(int32 a, int32 b) // b in 1-4096
 	return divv16(a,b);
 }
 
-void initOBB(OBB_struct* o, vect3D size, vect3D pos, int32 mass, s32 cosine, s32 sine)
+ARM_CODE void initOBB(OBB_struct* o, vect3D size, vect3D pos, int32 mass, s32 cosine, s32 sine)
 {
 	if(!o)return;
 
@@ -161,7 +161,7 @@ vect3D projectPointAABB(vect3D size, vect3D p, vect3D* n)
 	return v;
 }
 
-bool collideLineRectangle(vect3D ro, vect3D ru1, vect3D ru2, vect3D rn, int32 rs1, int32 rs2, vect3D o, vect3D v, int32 d, vect3D* ip)
+ARM_CODE bool collideLineRectangle(vect3D ro, vect3D ru1, vect3D ru2, vect3D rn, int32 rs1, int32 rs2, vect3D o, vect3D v, int32 d, vect3D* ip)
 {
 	int32 p1=dotProduct(v,rn);
 	if(abs(p1)>10) //margin of error
@@ -180,7 +180,7 @@ bool collideLineRectangle(vect3D ro, vect3D ru1, vect3D ru2, vect3D rn, int32 rs
 	return false;
 }
 
-bool clipSegmentOBB(int32* ss, vect3D *uu, vect3D* p1, vect3D* p2, vect3D vv, vect3D* uu1, vect3D* uu2, vect3D vv1, vect3D* n1, vect3D* n2, bool* b1, bool* b2, int32* k1, int32* k2)
+ARM_CODE bool clipSegmentOBB(int32* ss, vect3D *uu, vect3D* p1, vect3D* p2, vect3D vv, vect3D* uu1, vect3D* uu2, vect3D vv1, vect3D* n1, vect3D* n2, bool* b1, bool* b2, int32* k1, int32* k2)
 {
 	if(!p1 || !p2 || !uu1 || !uu2 || !n1 || !n2 || !b1 || !b2 || !k1 || !k2)return false;
 
@@ -326,7 +326,7 @@ bool clipSegmentOBB(int32* ss, vect3D *uu, vect3D* p1, vect3D* p2, vect3D vv, ve
 	return true;
 }
 
-void collideOBBs(OBB_struct* o1, OBB_struct* o2)
+ARM_CODE void collideOBBs(OBB_struct* o1, OBB_struct* o2)
 {
 	if(!o1 || !o2)return;
 	if(o1==o2)return;
@@ -476,7 +476,7 @@ void initTransformationMatrix(int32* m, s32 cosine, s32 sine)
 	m[8]=cosine;
 }
 
-void getVertices(vect3D s, vect3D p, vect3D u1, vect3D u2, vect3D u3, vect3D* v)
+ARM_CODE void getVertices(vect3D s, vect3D p, vect3D u1, vect3D u2, vect3D u3, vect3D* v)
 {
 	int32 m2[9];
 	m2[0]=mulf32(u1.x,s.x);m2[3]=mulf32(u1.y,s.x);m2[6]=mulf32(u1.z,s.x);
@@ -520,14 +520,14 @@ void getOBBVertices(OBB_struct* o, vect3D* v)
 	o->AABBs=vectDifference(M,mm);
 }
 
-void applyOBBForce(OBB_struct* o, vect3D p, vect3D f)
+ARM_CODE void applyOBBForce(OBB_struct* o, vect3D p, vect3D f)
 {
 	if(!o)return;
 	o->forces=addVect(o->forces,f);
 	o->moment=addVect(o->moment,vectProduct(vectDifference(p,o->position),f));
 }
 
-void applyOBBImpulsePlane(OBB_struct* o, u8 pID)
+ARM_CODE void applyOBBImpulsePlane(OBB_struct* o, u8 pID)
 {
 	if(!o || pID>=o->numContactPoints)return;
 	contactPoint_struct* cp=&o->contactPoints[pID];
@@ -584,7 +584,7 @@ void applyOBBImpulsePlane(OBB_struct* o, u8 pID)
 	}
 }
 
-void applyOBBImpulseOBB(OBB_struct* o, u8 pID)
+ARM_CODE void applyOBBImpulseOBB(OBB_struct* o, u8 pID)
 {
 	if(!o || pID>=o->numContactPoints)return;
 	contactPoint_struct* cp=&o->contactPoints[pID];
@@ -684,7 +684,7 @@ void applyOBBImpulses(OBB_struct* o)
 	}
 }
 
-void integrate(OBB_struct* o, float dt)
+ARM_CODE void integrate(OBB_struct* o, float dt)
 {
 	if(!o)return;
 	//o->position=addVect(o->position,vectMult(o->velocity,dt));
@@ -762,7 +762,7 @@ void wakeOBBs(void)
 	}
 }
 
-void calculateOBBEnergy(OBB_struct* o)
+ARM_CODE void calculateOBBEnergy(OBB_struct* o)
 {
 	if(!o)return;
 
@@ -880,7 +880,7 @@ void simulate(OBB_struct* o, float dt2)
 	o->moment=vect(0,0,0);
 }
 
-bool pointInFrontOfPortal(portal_struct* p, vect3D pos, int32* z) //assuming correct normal
+ARM_CODE bool pointInFrontOfPortal(portal_struct* p, vect3D pos, int32* z) //assuming correct normal
 {
 	if(!p)return false;
 	const vect3D v2=vectDifference(pos, p->position); //then, project onto portal base
@@ -889,7 +889,7 @@ bool pointInFrontOfPortal(portal_struct* p, vect3D pos, int32* z) //assuming cor
 	return (v.y>-PORTALSIZEY*4 && v.y<PORTALSIZEY*4 && v.x>-PORTALSIZEX*4 && v.x<PORTALSIZEX*4);
 }
 
-void updateOBBPortals(OBB_struct* o, u8 id, bool init)
+ARM_CODE void updateOBBPortals(OBB_struct* o, u8 id, bool init)
 {
 	if(!o&&id<2)return;
 
