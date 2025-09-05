@@ -8,7 +8,7 @@
 #define MCUASANCONFIG_H_
 
 #ifndef McuASAN_CONFIG_IS_ENABLED
-  #define McuASAN_CONFIG_IS_ENABLED     (1)
+  #define McuASAN_CONFIG_IS_ENABLED     (0)
   /*!< 1: ASAN is enabled; 0: ASAN is disabled */
 #endif
 
