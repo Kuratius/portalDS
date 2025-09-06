@@ -2,7 +2,7 @@
 #define PI9_H
 
 #include "math.h"
-#include "../../arm7/include/PIC.h"
+#include "../../common/include/PIC.h"
 
 #define NUMOBJECTS (8)
 
