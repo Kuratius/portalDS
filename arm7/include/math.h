@@ -15,7 +15,7 @@ typedef struct
 }vect3D;
 
 // float sqrtf(float a){return a;}
-int32_t sqrtv(int32_t x);
+uint32_t sqrtv(uint32_t x);
 
 static inline vect3D vect(int32 x, int32 y, int32 z)
 {
@@ -40,15 +40,15 @@ static inline int32_t mulf32(int32_t a, int32_t b)
 	// return (int32)(result);
 // }
 
-static inline int32 divv16(int32 a, int32 b)
+static inline int32_t divv16(int32_t a, int32_t b)
 {
-	int32 d=(((int32)a)<<12)/b;
+	int32_t d=(((int32_t)a)<<12)/b;
 	return (int32)d;
 }
 
 static inline int32 mulv16(int32 a, int32 b)
 {
-	int32 d=((int32)a)*((int32)b);
+	int32_t d=((int32_t)a)*((int32_t)b);
 	return (int32)(d>>12);
 }
 
@@ -87,11 +87,7 @@ static inline int32 dotProduct(vect3D v1, vect3D v2)
 	return ((int64_t)v1.x*v2.x+(int64_t)v1.y*v2.y+(int64_t)v1.z*v2.z)>>12;
 }
 
-static inline vect3D normalize(vect3D v)
-{
-	int32 d=sqrtv(((int64_t)v.x*v.x+(int64_t)v.y*v.y+(int64_t)v.z*v.z)>>12);
-	return vect(divv16(v.x,d),divv16(v.y,d),divv16(v.z,d));
-}
+vect3D normalize(vect3D v);
 
 static inline int32 magnitude(vect3D v)
 {

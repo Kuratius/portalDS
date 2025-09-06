@@ -1,11 +1,34 @@
 #include "stdafx.h"
-#include "LUTs.h"
 
-ARM_CODE int32_t sqrtv(int32_t x)
+
+#if 0
+#include "LUTs.h"
+ARM_CODE uint32_t sqrtv(uint32_t x)
 {
 	const uint16_t a=f32toint(x);
 	const uint16_t b=x&4095;
 	return (a<SQRTRANGE)?((a)?mulf32(sqrtLUT1[a],sqrtLUT2[b/(2*a)]):(sqrtLUT3[b])):(0);
+}
+
+#else 
+uint32_t isqrt_asm(uint32_t);
+
+
+ARM_CODE uint32_t sqrtv(uint32_t x)
+{
+	if (x<((1<<19)-1 ))
+    {
+        return isqrt_asm(x<<12);
+    } 
+
+    return isqrt_asm(x)<<6;
+}
+#endif
+
+ARM_CODE vect3D normalize(vect3D v)
+{
+	int32 d=sqrtv(((int64_t)v.x*v.x+(int64_t)v.y*v.y+(int64_t)v.z*v.z)>>12);
+	return vect(divv16(v.x,d),divv16(v.y,d),divv16(v.z,d));
 }
 
 
