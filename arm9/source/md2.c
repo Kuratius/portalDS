@@ -295,7 +295,13 @@ void generateFrameDisplayList(int n, const md2Model_struct *mdl, u8 normals)
     {
         for (j = 0; j < 3; ++j)
         {
-            glTexCoordPACKED(mdl->packedTexcoords[mdl->triangles[i].st[j]]);
+    
+            if (! mdl->triangles || !mdl->triangles[i].st)
+                return;
+            size_t idx=mdl->triangles[i].st[j];
+            if (!mdl->packedTexcoords)
+                return;
+            glTexCoordPACKED(mdl->packedTexcoords[idx]);
             if(normals)glNormalDL(anorms_table[pframe->verts[mdl->triangles[i].vertex[j]].normalIndex]);
             glVertexPackedDL(NORMAL_PACK(pframe->verts[mdl->triangles[i].vertex[j]].v[0]*2,pframe->verts[mdl->triangles[i].vertex[j]].v[1]*2,pframe->verts[mdl->triangles[i].vertex[j]].v[2]*2));
         }
@@ -459,13 +465,13 @@ void renderModelFrameInterp(int n, int n2, int m, const md2Model_struct *mdl, u3
     if(pal)bindPaletteAddr(pal);
 
 
-    NOGBA("rendermodelframe bp1\n");
+    //NOGBA("rendermodelframe bp1\n");
     glPushMatrix();
     
         glRotateXi(-(1<<13));
 
         glScalef32(1<<5,1<<5,1<<5); //?
-        NOGBA("bp2\n");
+        //NOGBA("bp2\n");
 
 
 
@@ -473,15 +479,15 @@ void renderModelFrameInterp(int n, int n2, int m, const md2Model_struct *mdl, u3
         
         int x=pframe->translate.x;
 
-        NOGBA("bp2.4\n");
-        NOGBA("bp2.45 %ld \n", pframe2->translate.x);
+        //NOGBA("bp2.4\n");
+        //NOGBA("bp2.45 %ld \n", pframe2->translate.x);
         x+=((pframe2->translate.x-pframe->translate.x)*m)/4;
-        NOGBA("bp2.5\n");
+        //NOGBA("bp2.5\n");
         int y=pframe->translate.y+((pframe2->translate.y-pframe->translate.y)*m)/4;
         int z=pframe->translate.z+((pframe2->translate.z-pframe->translate.z)*m)/4;
-        NOGBA("bp3\n");
+        //NOGBA("bp3\n");
         glTranslate3f32(x,y,z);
-        NOGBA("bp4\n");
+        //NOGBA("bp4\n");
 
         if(center){md2_frame_t *frm=&mdl->frames[0];glTranslate3f32(-(frm->min.x+frm->max.x)/2,-(frm->min.y+frm->max.y)/2,-(frm->min.z+frm->max.z)/2);} //TEMP? ("fake" center)
 
