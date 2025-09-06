@@ -16,7 +16,7 @@ uint32_t isqrt_asm(uint32_t);
 
 ARM_CODE uint32_t sqrtv(uint32_t x)
 {
-	if (x<((1<<19)-1 ))
+	if (x<((1u<<20)-1 ))
     {
         return isqrt_asm(x<<12);
     } 
