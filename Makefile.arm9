@@ -107,7 +107,7 @@ ASFLAGS		+= -x assembler-with-cpp $(DEFINES) $(INCLUDEFLAGS) \
 
 CFLAGS		+= -std=gnu17 $(WARNFLAGS) $(DEFINES) $(INCLUDEFLAGS) \
 		   $(ARCH) -O2 -save-temps -ffast-math -fno-inline -D_FORTIFY_SOURCE  -ffunction-sections -fdata-sections \
-		   -specs=$(SPECS)
+		   -specs=$(SPECS) -flto #-fsanitize=kernel-address 
 #-fsanitize=undefined -fsanitize-trap  -fsanitize=kernel-address -fstack-protector-strong  
 CXXFLAGS	+= -std=gnu++17 $(WARNFLAGS) $(DEFINES) $(INCLUDEFLAGS) \
 		   $(ARCH) -O2 -save-temps -ffast-math -ffunction-sections -fdata-sections \
