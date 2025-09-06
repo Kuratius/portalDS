@@ -37,9 +37,9 @@ static inline void transposeMatrix33(int32* m1, int32* m2) //3x3
 
 static inline vect3D evalVectMatrix33(int32* m, vect3D v) //3x3
 {
-	return vect((mulf32(v.x,m[0])+mulf32(v.y,m[1])+mulf32(v.z,m[2])),
-				(mulf32(v.x,m[3])+mulf32(v.y,m[4])+mulf32(v.z,m[5])),
-				(mulf32(v.x,m[6])+mulf32(v.y,m[7])+mulf32(v.z,m[8])));
+	return vect(((int64_t)v.x*m[0]+(int64_t)v.y*m[1]+(int64_t)v.z*m[2])>>12,
+				((int64_t)v.x*m[3]+(int64_t)v.y*m[4]+(int64_t)v.z*m[5])>>12,
+				((int64_t)v.x*m[6]+(int64_t)v.y*m[7]+(int64_t)v.z*m[8])>>12);
 }
 
 static inline vect3D minVect(vect3D u, vect3D v)
@@ -82,7 +82,6 @@ static inline int32 sqDistance(vect3D p1, vect3D p2)
     int32_t xdiff=(p1.x-p2.x);
     int32_t ydiff=(p1.y-p2.y);
     int32_t zdiff=(p1.z-p2.z);
-	//return (mulf32((p1.x-p2.x),(p1.x-p2.x))+mulf32((p1.y-p2.y),(p1.y-p2.y))+mulf32((p1.z-p2.z),(p1.z-p2.z)));
     return ((int64_t)xdiff*xdiff+(int64_t)ydiff*ydiff+(int64_t)zdiff*zdiff)>>12;
 }
 
@@ -91,19 +90,16 @@ static inline int32 distance(vect3D p1, vect3D p2)
     int32_t xdiff=(p1.x-p2.x);
     int32_t ydiff=(p1.y-p2.y);
     int32_t zdiff=(p1.z-p2.z);
-	//return sqrtf32(mulf32((p1.x-p2.x),(p1.x-p2.x))+mulf32((p1.y-p2.y),(p1.y-p2.y))+mulf32((p1.z-p2.z),(p1.z-p2.z)));
 	return sqrt64((int64_t)xdiff*xdiff+(int64_t)ydiff*ydiff+(int64_t)zdiff*zdiff);
 }
 
 static inline int32 magnitude(vect3D p1)
 {
-	//return sqrtf32(mulf32((p1.x),(p1.x))+mulf32((p1.y),(p1.y))+mulf32((p1.z),(p1.z)));
 	return sqrt64((int64_t)p1.x*p1.x  +(int64_t)p1.y*p1.y  +(int64_t)p1.z*p1.z);
 }
 
 static inline int32 sqMagnitude(vect3D p1)
 {
-	//return (mulf32((p1.x),(p1.x))+mulf32((p1.y),(p1.y))+mulf32((p1.z),(p1.z)));
 	return ((int64_t)p1.x*p1.x  +(int64_t)p1.y*p1.y  +(int64_t)p1.z*p1.z)>>12;
 }
 
@@ -135,13 +131,11 @@ static inline vect3D normalize(vect3D v)
 
 static inline int32 dotProduct(vect3D v1, vect3D v2)
 {
-	//return (mulf32(v1.x,v2.x)+mulf32(v1.y,v2.y)+mulf32(v1.z,v2.z));
     return ((int64_t)v1.x*v2.x+(int64_t)v1.y*v2.y+(int64_t)v1.z*v2.z)>>12;
 }
 
 static inline vect3D vectProduct(vect3D v1, vect3D v2)
 {
-	//return vect(mulf32(v1.y,v2.z)-mulf32(v1.z,v2.y),mulf32(v1.z,v2.x)-mulf32(v1.x,v2.z),mulf32(v1.x,v2.y)-mulf32(v1.y,v2.x));
     int32_t a[3]={v1.x,v1.y,v1.z};
     int32_t b[3]={v2.x,v2.y,v2.z};
     int32_t result[3];
