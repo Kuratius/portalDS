@@ -14,7 +14,7 @@ typedef struct portal_struct
 	bool used;
 }portal_struct;
 
-#include "PIC.h"
+#include "../../common/include/PIC.h"
 
 extern player_struct player;
 extern portal_struct portal[2];
