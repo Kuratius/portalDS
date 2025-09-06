@@ -51,13 +51,6 @@ OBB_struct *testOBB, *testOBB2;
 //extern u32 coll, integ, impul;
 //extern u8 sleeping;
 
-int32 sqrtv(int32 x)
-{
-	const u16 a=f32toint(x);
-	const u16 b=x&4095;
-	return (a<SQRTRANGE)?((a)?mulf32(sqrtLUT1[a],sqrtLUT2[b/(2*a)]):(sqrtLUT3[b])):(0);
-}
-
 int main() {
 	// enableSound();
 

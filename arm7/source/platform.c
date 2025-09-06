@@ -90,7 +90,7 @@ ARM_CODE void updatePlatform(platform_struct* pf)
 	pf->AAR.position=vect(pf->position.x-PLATFORMSIZE*4,pf->position.y,pf->position.z-PLATFORMSIZE*4);
 }
 
-void updatePlatforms(void)
+ARM_CODE void updatePlatforms(void)
 {
 	int i;
 	for(i=0;i<NUMPLATFORMS;i++)

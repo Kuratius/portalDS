@@ -497,7 +497,7 @@ ARM_CODE void getVertices(vect3D s, vect3D p, vect3D u1, vect3D u2, vect3D u3, v
 	v[4]=addVect(v[4],p);v[5]=addVect(v[5],p);v[6]=addVect(v[6],p);v[7]=addVect(v[7],p);
 }
 
-void getOBBVertices(OBB_struct* o, vect3D* v)
+ARM_CODE void getOBBVertices(OBB_struct* o, vect3D* v)
 {
 	if(!o || !v)return;
 	int32* m=o->transformationMatrix;
@@ -773,7 +773,7 @@ ARM_CODE void calculateOBBEnergy(OBB_struct* o)
 
 
 
-void simulate(OBB_struct* o, float dt2)
+ARM_CODE void simulate(OBB_struct* o, float dt2)
 {
 	if(!o)return;
 	//int32 dt=(dt2)<<TIMEPREC;
