@@ -1,9 +1,9 @@
 #include "stdafx.h"
 
-#define ALLOCATORSIZE (9*1024) //may cause problems !
+#define ALLOCATORSIZE (4*1024) //may cause problems !
 
 static u8 allocatorPool[ALLOCATORSIZE];
-static u16 allocatorCounter;
+static u16 allocatorCounter=0;
 
 static AAR_struct aaRectangles[NUMAARS];
 static grid_struct AARgrid;
@@ -55,12 +55,12 @@ void generateGrid(grid_struct* g)
 
 	freeGrid(g);
 
-	int i;
+
 	bool b=false;
 	vect3D m, M;
 	m=vect((1<<29),(1<<29),(1<<29));
 	M=vect(-(1<<29),-(1<<29),-(1<<29));
-	for(i=0;i<NUMAARS;i++)
+	for(int i=0;i<NUMAARS;i++)
 	{
 		if(aaRectangles[i].used)
 		{
@@ -95,14 +95,13 @@ void generateGrid(grid_struct* g)
 
 	static u16 temp[NUMAARS];
 
-	int j, k;
-	for(i=0;i<g->width;i++)
+	for(int i=0;i<g->width;i++)
 	{
-		for(j=0;j<g->height;j++)
+		for(int j=0;j<g->height;j++)
 		{
 			node_struct* n=&g->nodes[i+j*g->width];
 			n->length=0;
-			for(k=0;k<NUMAARS;k++)
+			for(int k=0;k<NUMAARS;k++)
 			{
 				if(aaRectangles[k].used)
 				{
@@ -169,13 +168,15 @@ void updateAAR(u16 id, vect3D position)
 
 void toggleAAR(u16 id)
 {
-	if(id>=NUMAARS)return;
+	if(id>=NUMAARS)
+        return;
 	aaRectangles[id].used^=1;
 }
 
 ARM_CODE bool pointInPortal(portal_struct* p, vect3D pos) //assuming correct normal
 {
-	if(!p)return false;
+	if(!p)
+        return false;
 	const vect3D v2=vectDifference(pos, p->position); //then, project onto portal base
 	vect3D v=vect(dotProduct(p->plane[0],v2),dotProduct(p->plane[1],v2),dotProduct(p->normal,v2));
 	return (abs(v.z)<16 && v.y>-PORTALSIZEY*4 && v.y<PORTALSIZEY*4 && v.x>-PORTALSIZEX*4 && v.x<PORTALSIZEX*4);
@@ -183,7 +184,8 @@ ARM_CODE bool pointInPortal(portal_struct* p, vect3D pos) //assuming correct nor
 
 ARM_CODE void OBBAARContacts(AAR_struct* a, OBB_struct* o, bool port)
 {
-	if(!a || !o || !o->used || !a->used)return;
+	if(!a || !o || !o->used || !a->used)
+        return;
 
 	vect3D u[3];
 		u[0]=vect(o->transformationMatrix[0],o->transformationMatrix[3],o->transformationMatrix[6]);
