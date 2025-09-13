@@ -14,6 +14,8 @@
 #include "PI7.h"
 #include "platform.h"
 
+#define NOGBA(_fmt, _args...) do { char nogba_buffer[128]; snprintf(nogba_buffer, sizeof(nogba_buffer), _fmt, ##_args); nocashMessage(nogba_buffer); } while(0)
+
 //#include "debug.h"
 
 
