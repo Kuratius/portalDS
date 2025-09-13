@@ -48,29 +48,46 @@ ARM_CODE void listenPI7(void)
 				initPI7();
 				break;
 			case PI_ADDBOX:
-				{
-					vect3D pos, size;
-					u32 mass;
-					u8 id=signal>>PISIGNALDATA;
-					while(!fifoCheckValue32(FIFO_USER_08));
-					u32 x=fifoGetValue32(FIFO_USER_08);
-					size.x=x&((1<<16)-1);
-					size.y=(x>>16)&((1<<16)-1);
-					while(!fifoCheckValue32(FIFO_USER_08));
-					x=fifoGetValue32(FIFO_USER_08);
-					size.z=x&((1<<16)-1);
-					mass=(x>>16)&((1<<16)-1);
-					while(!fifoCheckValue32(FIFO_USER_08));
-					pos.x=fifoGetValue32(FIFO_USER_08);
-					while(!fifoCheckValue32(FIFO_USER_08));
-					pos.y=fifoGetValue32(FIFO_USER_08);
-					while(!fifoCheckValue32(FIFO_USER_08));
-					pos.z=fifoGetValue32(FIFO_USER_08);
-					while(!fifoCheckValue32(FIFO_USER_08));
-					s32 cosine=fifoGetValue32(FIFO_USER_08);
-					s32 sine=fifoGetValue32(FIFO_USER_08);
-					createOBB(id,size,pos,mass,cosine,sine);
-				}
+				
+
+				vect3D pos, size;
+				u32 mass;
+				u8 id=signal>>PISIGNALDATA;
+				while(!fifoCheckValue32(FIFO_USER_08));
+
+				u32 x=fifoGetValue32(FIFO_USER_08);
+				size.x=x&((1<<16)-1);
+				size.y=(x>>16)&((1<<16)-1);
+
+				while(!fifoCheckValue32(FIFO_USER_08));
+
+				x=fifoGetValue32(FIFO_USER_08);
+				size.z=x&((1<<16)-1);
+				mass=(x>>16)&((1<<16)-1);
+
+				while(!fifoCheckValue32(FIFO_USER_08));
+
+				pos.x=fifoGetValue32(FIFO_USER_08);
+
+				while(!fifoCheckValue32(FIFO_USER_08));
+
+				pos.y=fifoGetValue32(FIFO_USER_08);
+
+				while(!fifoCheckValue32(FIFO_USER_08));
+
+				pos.z=fifoGetValue32(FIFO_USER_08);
+
+				while(!fifoCheckValue32(FIFO_USER_08));
+
+				s32 cosine=fifoGetValue32(FIFO_USER_08);
+				s32 sine=fifoGetValue32(FIFO_USER_08);
+
+                NOGBA("add box:id%d, %ld, %ld, %ld\n",id, pos.x,pos.y,pos.z);
+                //add box:id0, 19968, 208896, 1536
+				createOBB(id,size,pos,mass,cosine,sine);
+
+
+				
 				break;
 			case PI_APPLYFORCE:
 				{
