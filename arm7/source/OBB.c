@@ -586,10 +586,12 @@ ARM_CODE void applyOBBImpulsePlane(OBB_struct* o, u8 pID)
 
 ARM_CODE void applyOBBImpulseOBB(OBB_struct* o, u8 pID)
 {
-	if(!o || pID>=o->numContactPoints)return;
+	if(!o || pID>=o->numContactPoints)
+        return;
 	contactPoint_struct* cp=&o->contactPoints[pID];
 	OBB_struct* o2=(OBB_struct*)cp->target;
-	if(!o2)return;
+	if(!o2)
+        return;
 	vect3D r1=vectDifference(cp->point,o->position);
 	vect3D r2=vectDifference(cp->point,o2->position);
 	vect3D v1=addVect(o->velocity,vectProduct(o->angularVelocity,r1));
@@ -606,7 +608,8 @@ ARM_CODE void applyOBBImpulseOBB(OBB_struct* o, u8 pID)
 	int32 iD=invMass1+invMass2+dotProduct(addVect(vectProduct(evalVectMatrix33(o->invWInertiaMatrix,vectProduct(r1,cp->normal)),r1),vectProduct(evalVectMatrix33(o2->invWInertiaMatrix,vectProduct(r2,cp->normal)),r2)),cp->normal);
 	//iN=divf32(iN,iD);
 	iN=divv16(iN,iD);
-	if(iN<0)iN=0;
+	if(iN<0)
+        iN=0;
 	//vect3D imp=vectMult(cp->normal,iN);
 	vect3D imp=vectMult(cp->normal,iN+cp->penetration); //added bias adds jitter, but prevents sinking.
 
@@ -627,7 +630,8 @@ ARM_CODE void applyOBBImpulseOBB(OBB_struct* o, u8 pID)
 	{
 		vect3D tangent=vect(0,0,0);
 		tangent=vectDifference(dv,(vectMult(cp->normal,dotProduct(dv, cp->normal))));
-		if(magnitude(tangent)<1)return;
+		if(magnitude(tangent)<1)
+            return;
 		tangent=normalize(tangent);
 
 		int32 kTangent=invMass1+invMass2+dotProduct(tangent,addVect(vectProduct(evalVectMatrix33(o->invWInertiaMatrix,(vectProduct(r1, tangent))), r1),
@@ -640,8 +644,10 @@ ARM_CODE void applyOBBImpulseOBB(OBB_struct* o, u8 pID)
 		const int32 frictionCONST=floattof32(0.5f);
 
 		int32 maxPt=abs(mulf32(frictionCONST,iN));
-		if(dPt<-maxPt)dPt=-maxPt;
-		else if(dPt>maxPt)dPt=maxPt;
+		if(dPt<-maxPt)
+            dPt=-maxPt;
+		else if(dPt>maxPt)
+            dPt=maxPt;
 
 		// Apply contact impulse
 		vect3D P = vectMult(tangent,dPt);
@@ -686,7 +692,8 @@ void applyOBBImpulses(OBB_struct* o)
 
 ARM_CODE void integrate(OBB_struct* o, float dt)
 {
-	if(!o)return;
+	if(!o)
+        return;
 	//o->position=addVect(o->position,vectMult(o->velocity,dt));
 	//o->position=addVect(o->position,vect(mulf32(o->velocity.x,dt)>>TIMEPREC,mulf32(o->velocity.y,dt)>>TIMEPREC,mulf32(o->velocity.z,dt)>>TIMEPREC));
 	//o->position=addVect(o->position,vect((mulf32((o->velocity.x+o->oldVelocity.x)/2,dt)>>TIMEPREC),
@@ -735,7 +742,8 @@ ARM_CODE void integrate(OBB_struct* o, float dt)
 
 void checkOBBCollisions(OBB_struct* o, bool sleep)
 {
-	if(!o)return;
+	if(!o)
+        return;
 	int i;
 	o->numContactPoints=0;
 	// planeOBBContacts(&testPlane,o);
@@ -764,7 +772,8 @@ void wakeOBBs(void)
 
 ARM_CODE void calculateOBBEnergy(OBB_struct* o)
 {
-	if(!o)return;
+	if(!o)
+        return;
 
 	u32 tmp=dotProduct(o->velocity,o->velocity)+dotProduct(o->angularVelocity,o->angularVelocity);
 	// o->energy=(o->energy*9+tmp)/10;
@@ -882,7 +891,8 @@ ARM_CODE void simulate(OBB_struct* o, float dt2)
 
 ARM_CODE bool pointInFrontOfPortal(portal_struct* p, vect3D pos, int32* z) //assuming correct normal
 {
-	if(!p)return false;
+	if(!p)
+        return false;
 	const vect3D v2=vectDifference(pos, p->position); //then, project onto portal base
 	vect3D v=vect(dotProduct(p->plane[0],v2),dotProduct(p->plane[1],v2),0);
 	*z=dotProduct(p->normal,v2);
@@ -949,11 +959,11 @@ void updateOBBs(void)
 OBB_struct* createOBB(u8 id, vect3D size, vect3D position, int32 mass, s32 cosine, s32 sine)
 {
 	int i=id;
-		// if(!objects[i].used)
-		{
+	//if(!objects[i].used)
+	{
 			initOBB(&objects[i],size,position,mass,cosine,sine);
 			return &objects[i];
-		}
+	}
 	return NULL;
 }
 
@@ -971,5 +981,5 @@ void drawOBBs(void)
 
 void drawOBB(OBB_struct* o)
 {
-
+    return;
 }
