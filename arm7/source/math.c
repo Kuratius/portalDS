@@ -20,22 +20,38 @@ ARM_CODE uint32_t sqrtv(uint32_t x)
     {
         return isqrt_asm(x<<12);
     } 
+    uint32_t r0=isqrt_asm(x)<<6;
+#if 1
 
-    return isqrt_asm(x)<<6;
+    uint32_t x0=((int64_t)r0*r0) >>12;
+    uint32_t epsilon=x-x0;
+    
+   
+    r0= r0+(epsilon<<11)/r0;
+#endif
+    return r0;
 }
 #endif
 
+
+#if 1
 ARM_CODE vect3D normalize(vect3D v)
 {
 	int32 d=sqrtv(((int64_t)v.x*v.x+(int64_t)v.y*v.y+(int64_t)v.z*v.z)>>12);
 	return vect(divv16(v.x,d),divv16(v.y,d),divv16(v.z,d));
 }
 
+#endif
+
 
 void transposeMatrix33(int32_t *restrict m1, int32_t *restrict m2) //3x3
 {
 	int i, j;
-	for(i=0;i<3;i++)for(j=0;j<3;j++)m2[j+i*3]=m1[i+j*3];
+	for(i=0;i<3;i++)
+    {    
+        for(j=0;j<3;j++)
+            m2[j+i*3]=m1[i+j*3];
+    }
     return;
 }
 
@@ -87,12 +103,63 @@ ARM_CODE void rotateMatrixAxis(int32* tm, int32 x, vect3D a, bool r)
 	memcpy(tm,m,9*sizeof(int32));
 }
 
-ARM_CODE vect3D vectProduct(vect3D v1, vect3D v2)
-{
-	return vect(((int64_t)v1.y*v2.z+(int64_t)v1.z*-v2.y)>>12,((int64_t)v1.z*v2.x+(int64_t)-v1.x*v2.z)>>12,((int64_t)-v1.x*-v2.y+(int64_t)-v1.y*v2.x)>>12);
+ARM_CODE static inline void asm_crossf32(const int32_t *a,const int32_t * b,int32_t *result)
+{ 
+    register const int32_t *r0 asm("r0")=a;
+    asm (
+        ".syntax unified \n\t"
+        "ldm %[b], {r6,r12,lr} \n\t"
+        "ldm %[r0], {r3,r4,r5} \n\t"
+        //first component
+        "rsb r12,r12,#0 \n\t"
+        "smull %[r0],%[b], r4, lr \n\t"
+        "smlal %[r0],%[b], r12, r5 \n\t"
+        "lsr     %[r0], %[r0], #12 \n\t"
+        "orr    %[r0],%[r0], %[b], lsl #20 \n\t"
+        //second component
+        "rsb r3,r3,#0 \n\t"
+        "smull r5,%[b], r6, r5 \n\t"
+        "smlal r5,%[b], lr, r3 \n\t"
+        "lsr     r5, r5, #12 \n\t"
+        "orr    r5,r5, %[b], lsl #20 \n\t"
+        //third component
+        "rsb r6,r6, #0 \n\t"
+        "smull lr,%[b], r3, r12 \n\t"
+        "smlal lr,%[b], r4, r6 \n\t"
+        "lsr   lr, lr, #12 \n\t"
+        "orr    lr,lr, %[b], lsl #20 \n\t"
+        "stm    %[result], {%[r0],r5, lr}"
+/*outputs*/:"=m"(*(int32_t (*)[3]) result),[r0]"+r"(r0),[b]"+r"(b)
+/*inputs*/ :[result]"r"(result),"m"(*(int32_t (*)[3]) r0),  "m"(*(int32_t (*)[3]) b)
+/*clobber*/:"r3", "r4", "r5","r6", "r12", "lr"
+    );
+    return;
 }
 
-ARM_CODE void fixMatrix(int32* m) //3x3
+ARM_CODE vect3D vectProduct(vect3D v1, vect3D v2)
+{
+	//return vect(((int64_t)v1.y*v2.z+(int64_t)v1.z*-v2.y)>>12,((int64_t)v1.z*v2.x+(int64_t)-v1.x*v2.z)>>12,((int64_t)-v1.x*-v2.y+(int64_t)-v1.y*v2.x)>>12);
+    int32_t result[3];
+    if (sizeof(vect3D)!=3*sizeof(int32_t))
+    {
+        int32_t a[3]={v1.x, v1.y,v1.z};
+        int32_t b[3]={v2.x,v2.y,v2.z};
+        asm_crossf32(&a[0], &b[0],&result[0]);     
+    } 
+    else
+    {
+        asm_crossf32((const int32_t*)&v1,(const int32_t*) &v2,&result[0]);     
+    }
+
+    
+    return vect(result[0],result[1], result[2]);
+}
+
+
+
+
+
+void fixMatrix(int32* m) //3x3
 {
 	if(!m)return;
 	vect3D x=vect(m[0],m[3],m[6]);
