@@ -10,7 +10,9 @@ typedef struct
 static inline int32 evaluatePlanePoint(plane_struct* p, vect3D v)
 {
 	if(!p)return 0;
-	return mulf32(p->A,v.x)+mulf32(p->B,v.y)+mulf32(p->C,v.z)+p->D;
+	//return mulf32(p->A,v.x)+mulf32(p->B,v.y)+mulf32(p->C,v.z)+p->D;
+	int32_t t= ((int64_t)p->A*v.x+(int64_t)p->B*v.y+(int64_t)p->C*v.z)>>12;
+    return t+p->D;
 }
 
 //extern plane_struct testPlane;
