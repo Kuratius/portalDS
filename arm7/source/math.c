@@ -41,6 +41,49 @@ ARM_CODE vect3D normalize(vect3D v)
 	return vect(divv16(v.x,d),divv16(v.y,d),divv16(v.z,d));
 }
 
+#else
+ARM_CODE __attribute__((always_inline)) static inline int32_t udiv16(int32_t n, uint32_t d){
+
+    int c=0;
+    if (n<0){
+        c=~c;
+        n=-n;
+    }
+    int N=16;
+    int l;    
+    if (__builtin_expect(d>1,1) ){
+        l=32-__builtin_clz(d-1);  //should be ceil(log2(d)). Isnt exactly that but difference isnt important;
+    } else 
+    {
+        l=0;
+    }    
+    uint32_t hi=((1ul<<l)-d)<<N ;
+    uint32_t mprime=hi/d;
+    mprime+=1;
+    int sh1= l>=1 ? 1: l;
+    int sh2= l-1 >=0 ? l-1 :0;
+    uint32_t t1=((uint64_t)mprime*(uint32_t)n)>>N;
+    uint32_t q= (t1+(((uint32_t)n-t1)>>sh1))>>sh2;
+    if (c)q=-q;    
+    return q;
+}
+
+ARM_CODE vect3D normalize(vect3D v)
+{
+	int32 d=sqrtv(((int64_t)v.x*v.x+(int64_t)v.y*v.y+(int64_t)v.z*v.z)>>12);
+    if (d<(1<<24)){
+        v.x<<=12;
+        v.y<<=12;
+        v.z<<=12;
+        
+    }else{
+        d>>=12;
+    }
+	return vect(udiv16(v.x,d),udiv16(v.y,d),udiv16(v.z,d));
+    
+}
+
+
 #endif
 
 
@@ -87,6 +130,7 @@ ARM_CODE void rotateMatrixAxis(int32* tm, int32 x, vect3D a, bool r)
 	int32 onemcosval=inttof32(1)-cosval;
 
 	rm[0]=cosval+mulf32(mulf32(a.x,a.x),onemcosval);
+#if 0
 	rm[1]=mulf32(mulf32(a.x,a.y),onemcosval)-mulf32(a.z,sinval);
 	rm[2]=mulf32(mulf32(a.x,a.z),onemcosval)+mulf32(a.y,sinval);
 
@@ -97,6 +141,19 @@ ARM_CODE void rotateMatrixAxis(int32* tm, int32 x, vect3D a, bool r)
 	rm[6]=mulf32(mulf32(a.x,a.z),onemcosval)-mulf32(a.y,sinval);
 	rm[7]=mulf32(mulf32(a.y,a.z),onemcosval)+mulf32(a.x,sinval);
 	rm[8]=cosval+mulf32(mulf32(a.z,a.z),onemcosval);
+
+#else
+	rm[1]=((int64_t)mulf32(a.x,a.y)*onemcosval+(int64_t)-a.z*sinval)>>12;
+	rm[2]=((int64_t)mulf32(a.x,a.z)*onemcosval+(int64_t)a.y*sinval)>>12;
+
+	rm[3]=((int64_t)mulf32(a.x,a.y)*onemcosval+(int64_t)a.z*sinval)>>12;
+	rm[4]=cosval+mulf32(mulf32(a.y,a.y),onemcosval);
+	rm[5]=((int64_t)mulf32(a.y,a.z)*onemcosval+(int64_t)-a.x*sinval)>>12;
+
+	rm[6]=((int64_t)mulf32(a.x,a.z)*onemcosval+(int64_t)-a.y*sinval)>>12;
+	rm[7]=((int64_t)mulf32(a.y,a.z)*onemcosval+(int64_t)a.x*sinval)>>12;
+	rm[8]=cosval+mulf32(mulf32(a.z,a.z),onemcosval);
+#endif
 
 	if(r)multMatrix33(rm,tm,m);
 	else multMatrix33(tm,rm,m);
@@ -178,6 +235,3 @@ void fixMatrix(int32* m) //3x3
 	m[1]=y.x;m[4]=y.y;m[7]=y.z;
 	m[2]=z.x;m[5]=z.y;m[8]=z.z;
 }
-
-
-

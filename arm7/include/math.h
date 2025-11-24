@@ -1,3 +1,5 @@
+
+
 #ifndef MATH_H
 #define MATH_H
 
@@ -9,6 +11,9 @@
 #define min(a,b) (((a)>(b))?(b):(a))
 #define max(a,b) (((a)>(b))?(a):(b))
 
+float cosf(float x);
+float sinf(float x);
+
 typedef struct
 {
 	int32 x, y, z;
@@ -17,7 +22,7 @@ typedef struct
 // float sqrtf(float a){return a;}
 uint32_t sqrtv(uint32_t x);
 
-static inline vect3D vect(int32 x, int32 y, int32 z)
+__attribute__((always_inline ))static inline vect3D vect(int32 x, int32 y, int32 z)
 {
     vect3D v;
     v.x=x;
@@ -109,10 +114,21 @@ vect3D vectProduct(vect3D v1, vect3D v2);
 
 // static inline int cosLerp(int32 x){return floattof32(cos((x*PI)/16384));}
 // static inline int sinLerp(int32 x){return floattof32(sin((x*PI)/16384));}
-
+#if 0
 static inline int cosLerp(int32 x){return 1;}
 static inline int sinLerp(int32 x){return 1;}
-
+#else
+//this is a bad solution but I cant be bothered to do the performant solution right now
+//hopefully this together with my other improvements cancels to keep performance reasonable
+static inline int cosLerp(int32 x)
+{
+    return cosf((float)x/(1<<12))*(1<<12);
+}
+static inline int sinLerp(int32 x)
+{
+    return sinf((float)x/(1<<12))*(1<<12);
+}
+#endif
 void multMatrix33(int32* m1, int32* m2, int32 *restrict m); //3x3
 
 void multMatrix332(int32* m1, int32* m2, int32 *restrict m); //3x3
