@@ -1,5 +1,3 @@
-
-
 #ifndef MATH_H
 #define MATH_H
 
@@ -16,13 +14,11 @@ float sinf(float x);
 
 typedef struct
 {
-	int32 x, y, z;
+	int32_t x, y, z;
 }vect3D;
-
-// float sqrtf(float a){return a;}
 uint32_t sqrtv(uint32_t x);
 
-__attribute__((always_inline ))static inline vect3D vect(int32 x, int32 y, int32 z)
+__attribute__((always_inline ))static inline vect3D vect(int32_t x, int32_t y, int32_t z)
 {
     vect3D v;
     v.x=x;
@@ -33,11 +29,8 @@ __attribute__((always_inline ))static inline vect3D vect(int32 x, int32 y, int32
 
 static inline int32_t mulf32(int32_t a, int32_t b)
 {
-	int64_t result = (int64_t)a * (int64_t)b;
-	return (int32_t)(result >> (12));
+	return ((int64_t)a*b)>>12;
 }
-
-
 
 // static inline int32 divf32(int32 a, int32 b)
 // {
@@ -46,15 +39,13 @@ static inline int32_t mulf32(int32_t a, int32_t b)
 // }
 
 static inline int32_t divv16(int32_t a, int32_t b)
-{
-	int32_t d=(((int32_t)a)<<12)/b;
-	return (int32)d;
+{	
+	return (a<<12)/b;;
 }
 
-static inline int32 mulv16(int32 a, int32 b)
+static inline int32_t mulv16(int32_t a, int32_t b)
 {
-	int32_t d=((int32_t)a)*((int32_t)b);
-	return (int32)(d>>12);
+	return (a*b)>>12;
 }
 
 static inline vect3D addVect(vect3D p1, vect3D p2)
@@ -120,23 +111,24 @@ static inline int sinLerp(int32 x){return 1;}
 #else
 //this is a bad solution but I cant be bothered to do the performant solution right now
 //hopefully this together with my other improvements cancels to keep performance reasonable
-static inline int cosLerp(int32 x)
+static inline int cosLerp(int32_t x)
 {
     return cosf((float)x/(1<<12))*(1<<12);
 }
-static inline int sinLerp(int32 x)
+static inline int sinLerp(int32_t x)
 {
     return sinf((float)x/(1<<12))*(1<<12);
 }
 #endif
-void multMatrix33(int32* m1, int32* m2, int32 *restrict m); //3x3
+void multMatrix33(int32_t * m1, int32_t * m2, int32_t *restrict m); //3x3
 
-void multMatrix332(int32* m1, int32* m2, int32 *restrict m); //3x3
+void multMatrix332(int32_t * m1, int32_t * m2, int32_t *restrict m); //3x3
 
 static inline void addMatrix33(int32* m1, int32* m2, int32* m) //3x3
 {
-	int i, j;
-	for(i=0;i<3;i++)for(j=0;j<3;j++)m[j+i*3]=m1[j+i*3]+m2[j+i*3];
+	for(int i=0;i<3;i++)
+        for(int j=0;j<3;j++)
+            m[j+i*3]=m1[j+i*3]+m2[j+i*3];
 }
 
 void transposeMatrix33(int32* m1, int32* m2); //3x3
@@ -147,29 +139,33 @@ vect3D evalVectMatrix33(int32* m, vect3D v); //3x3
 
 static inline int32 clamp(int32 v, int32 m, int32 M)
 {
-	if(m<M)return max(m,min(v,M));
-	else return min(m,max(v,M));
+	if(m<M)
+        return max(m,min(v,M));
+	else 
+        return min(m,max(v,M));
 }
 
 static inline void rotateMatrixX(int32* tm, int32 x, bool r)
 {
-	int i;
-	int32 rm[9], m[9];
-	for(i=0;i<9;i++)rm[i]=0;
+	int32_t rm[9], m[9];
+	for(int i=0;i<9;i++)
+        rm[i]=0;
 	rm[0]=inttof32(1);
 	rm[4]=cosLerp(x);
 	rm[5]=sinLerp(x);
 	rm[7]=-sinLerp(x);
 	rm[8]=cosLerp(x);
-	if(r)multMatrix33(rm,tm,m);
-	else multMatrix33(tm,rm,m);
-	memcpy(tm,m,9*sizeof(int32));
+	if(r)
+        multMatrix33(rm,tm,m);
+	else 
+        multMatrix33(tm,rm,m);
+	memcpy(tm,m,9*sizeof(int32_t));
 }
 
 static inline void rotateMatrixY(int32* tm, int32 x, bool r)
 {
 	int i;
-	int32 rm[9], m[9];
+	int32_t rm[9], m[9];
 	for(i=0;i<9;i++)rm[i]=0;
 	rm[0]=cosLerp(x);
 	rm[2]=sinLerp(x);
@@ -178,35 +174,38 @@ static inline void rotateMatrixY(int32* tm, int32 x, bool r)
 	rm[8]=cosLerp(x);
 	if(r)multMatrix33(rm,tm,m);
 	else multMatrix33(tm,rm,m);
-	memcpy(tm,m,9*sizeof(int32));
+	memcpy(tm,m,9*sizeof(int32_t));
 }
 
 static inline void rotateMatrixZ(int32* tm, int32 x, bool r)
 {
-	int i;
-	int32 rm[9], m[9];
-	for(i=0;i<9;i++)rm[i]=0;
+	int32_t rm[9], m[9];
+	for(int i=0;i<9;i++)
+        rm[i]=0;
 	rm[0]=cosLerp(x);
 	rm[1]=sinLerp(x);
 	rm[3]=-sinLerp(x);
 	rm[4]=cosLerp(x);
 	rm[8]=inttof32(1);
-	if(r)multMatrix33(rm,tm,m);
-	else multMatrix33(tm,rm,m);
+	if(r)
+        multMatrix33(rm,tm,m);
+	else 
+        multMatrix33(tm,rm,m);
 	memcpy(tm,m,9*sizeof(int32));
 }
 
-void rotateMatrixAxis(int32* tm, int32 x, vect3D a, bool r);
+void rotateMatrixAxis(int32_t * tm, int32_t x, vect3D a, bool r);
 
 
 static inline void projectVectorPlane(vect3D* v, vect3D n)
 {
-	if(!v)return;
-	int32 r=dotProduct(*v,n);
+	if(!v)
+        return;
+	int32_t r=dotProduct(*v,n);
 	*v=vectDifference(*v,vectMult(n,r));
 }
 
-void fixMatrix(int32* m); //3x3
+void fixMatrix(int32_t * m); //3x3
 
 
 #endif
