@@ -580,7 +580,7 @@ ARM_CODE void applyOBBImpulsePlane(OBB_struct* o, u8 pID)
 
 		const int32_t frictionCONST=floattof32(1.0f);
 
-		int32 maxPt=abs(mulf32(frictionCONST,iN));
+		int32_t maxPt=abs(mulf32(frictionCONST,iN));
 		if(dPt<-maxPt)
             dPt=-maxPt;
 		else if(dPt>maxPt)
@@ -828,10 +828,6 @@ ARM_CODE void integrate(OBB_struct* o, float dt)
 	//												(mulf32((o->moment.z+o->oldMoment.z)/2,dt)>>TIMEPREC)));
 
 	//o->angularMomentum=addVect(o->angularMomentum,vect(o->moment.x*dt,o->moment.y*dt,o->moment.z*dt));
-    o->angularMomentum.x+=((int64_t)o->moment.x*DT)>>32;
-    o->angularMomentum.y+=((int64_t)o->moment.y*DT)>>32;
-    o->angularMomentum.z+=((int64_t)o->moment.z*DT)>>32;
-
 
 	fixMatrix(o->transformationMatrix);
     // compute auxiliary quantities
@@ -839,7 +835,11 @@ ARM_CODE void integrate(OBB_struct* o, float dt)
 	multMatrix33(m2,o->invInertiaMatrix,m);
 	multMatrix33(m,o->transformationMatrix,o->invWInertiaMatrix);
 
+    o->angularMomentum.x+=((int64_t)o->moment.x*DT)>>32;
+    o->angularMomentum.y+=((int64_t)o->moment.y*DT)>>32;
+    o->angularMomentum.z+=((int64_t)o->moment.z*DT)>>32;
 	o->angularVelocity=evalVectMatrix33(o->invWInertiaMatrix,o->angularMomentum);
+
 }
 
 //extern plane_struct testPlane;
