@@ -30,7 +30,7 @@
 #include <nds.h>
 #include "stdafx.h"
 
-u32 cnt=0;
+uint32_t cnt=0;
 
 void VblankHandler(void) {
 
@@ -46,29 +46,25 @@ void powerButtonCB() {
 	exitflag = true;
 }
 
-OBB_struct *testOBB, *testOBB2;
+//OBB_struct *testOBB, *testOBB2;
 //plane_struct testPlane;
 //extern u32 coll, integ, impul;
 //extern u8 sleeping;
 
+
+
 int main() {
-	// enableSound();
-
+	enableSound();
 	readUserSettings();
-
 	touchInit();
-
 	irqInit();
-	initClockIRQ();
 	fifoInit();
-
 	// mmInstall(FIFO_MAXMOD);
-
 	SetYtrigger(80);
-
 	installSoundFIFO();
 	installSystemFIFO();
-
+	//initClockIRQ();
+    initClockIRQTimer(0);
 	irqSet(IRQ_VCOUNT, VcountHandler);
 	irqSet(IRQ_VBLANK, VblankHandler);
 
@@ -87,23 +83,25 @@ int main() {
 	{
 		if(getPI7Status())
 		{
-			// cpuStartTiming(0);
+			//cpuStartTiming(0);
 
-			coll=impul=integ=0;
-				updatePlatforms();
-				updateOBBs();
-				listenPI7();
-				updatePlatforms();
-				updateOBBs();
-				listenPI7();
-				updatePlatforms();
-				updateOBBs();
-				listenPI7();
-				updatePlatforms();
-				updateOBBs();
-				listenPI7();
-				updatePlatforms();
-				updateOBBs();
+		    coll=0;
+            impul=0;
+            integ=0;
+			updatePlatforms();
+			updateOBBs();
+			listenPI7();
+			updatePlatforms();
+			updateOBBs();
+			listenPI7();
+			updatePlatforms();
+			updateOBBs();
+			listenPI7();
+			updatePlatforms();
+			updateOBBs();
+			listenPI7();
+			updatePlatforms();
+			updateOBBs();
 				// updateOBBs();
 				// updateOBBs();
 				// updateOBBs();
@@ -118,6 +116,8 @@ int main() {
 			// fifoSendValue32(FIFO_USER_08,objects[1].energy);
 
 			sendDataPI7();
+			//NOGBA("frametime: %lu \n ",cpuEndTiming());
+
 			// u32 key=REG_KEYINPUT;
 			// if(0==(key&(KEY_B)))applyOBBForce(&objects[0],addVect(testOBB->position,vect(-inttof32(1),0,0)),vect(0,inttof32(100),0));
 		}
