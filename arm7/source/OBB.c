@@ -6,8 +6,8 @@ contactPoint_struct contactPoints[MAXCONTACTPOINTS];
 
 OBB_struct objects[NUMOBJECTS];
 
-u32 coll, integ, impul;
-u8 sleeping;
+uint32_t coll, integ, impul;
+uint8_t sleeping;
 
 /*s16 divLUT[4097];
 
@@ -21,7 +21,7 @@ void initDivision(void)
 	divLUT[0]=0;
 }*/
 
-static inline int32 divv(int32 a, int32 b) // b in 1-4096
+static inline int32_t divv(int32_t a, int32_t b) // b in 1-4096
 {
 	/*return divf32(a,b);
 	s32 r=(((s32)a)*((s32)divLUT[b]))>>12;
@@ -29,9 +29,10 @@ static inline int32 divv(int32 a, int32 b) // b in 1-4096
 	return divv16(a,b);
 }
 
-ARM_CODE void initOBB(OBB_struct* o, vect3D size, vect3D pos, int32 mass, s32 cosine, s32 sine)
+ARM_CODE void initOBB(OBB_struct* o, vect3D size, vect3D pos, int32_t mass, s32 cosine, s32 sine)
 {
-	if(!o)return;
+	if(!o)
+        return;
 
 	o->used=true;
 	o->position=pos;
@@ -51,11 +52,12 @@ ARM_CODE void initOBB(OBB_struct* o, vect3D size, vect3D pos, int32 mass, s32 co
 
 	initTransformationMatrix(o->transformationMatrix, cosine, sine);
 
-	int32 x2=mulf32(o->size.x,o->size.x);
-	int32 y2=mulf32(o->size.y,o->size.y);
-	int32 z2=mulf32(o->size.z,o->size.z);
+	int32_t x2=mulf32(o->size.x,o->size.x);
+	int32_t y2=mulf32(o->size.y,o->size.y);
+	int32_t z2=mulf32(o->size.z,o->size.z);
 
-	int i;for(i=0;i<9;i++){o->invInertiaMatrix[i]=0;}
+    for(int i=0;i<9;i++)
+        o->invInertiaMatrix[i]=0;
     //o->invInertiaMatrix[0]=divf32(inttof32(3),(mulf32(o->mass,(y2+z2))));
     //o->invInertiaMatrix[4]=divf32(inttof32(3),(mulf32(o->mass,(x2+z2))));
     //o->invInertiaMatrix[8]=divf32(inttof32(3),(mulf32(o->mass,(x2+y2))));
@@ -78,8 +80,7 @@ ARM_CODE void initOBB(OBB_struct* o, vect3D size, vect3D pos, int32 mass, s32 co
 
 void initOBBs(void)
 {
-	int i;
-	for(i=0;i<NUMOBJECTS;i++)
+	for(int i=0;i<NUMOBJECTS;i++)
 	{
 		objects[i].used=false;
 	}
@@ -87,7 +88,8 @@ void initOBBs(void)
 
 void copyOBB(OBB_struct* o1, OBB_struct* o2)
 {
-	if(!o1 || !o2)return;
+	if(!o1 || !o2)
+        return;
 
 	o2->angularMomentum=o1->angularMomentum;
 	o2->numContactPoints=o1->numContactPoints;
@@ -106,11 +108,9 @@ void copyOBB(OBB_struct* o1, OBB_struct* o2)
 
 	//temporary
 	o2->contactPoints=contactPoints;
-
-	memcpy(o2->transformationMatrix,o1->transformationMatrix,sizeof(int32)*9);
-	memcpy(o2->invInertiaMatrix,o1->invInertiaMatrix,sizeof(int32)*9);
-	memcpy(o2->invWInertiaMatrix,o1->invWInertiaMatrix,sizeof(int32)*9);
-
+	memcpy(o2->transformationMatrix,o1->transformationMatrix,sizeof(int32_t)*9);
+	memcpy(o2->invInertiaMatrix,o1->invInertiaMatrix,sizeof(int32_t)*9);
+	memcpy(o2->invWInertiaMatrix,o1->invWInertiaMatrix,sizeof(int32_t)*9);
 	memcpy(o2->contactPoints,o1->contactPoints,sizeof(contactPoint_struct)*o2->numContactPoints);
 }
 
@@ -122,7 +122,8 @@ bool collideAABB(vect3D o1, vect3D s1, vect3D o2, vect3D s2)
 
 vect3D projectPointAABB(vect3D size, vect3D p, vect3D* n)
 {
-	if(!n)return vect(0,0,0);
+	if(!n)
+        return vect(0,0,0);
 	vect3D v=p;
 	*n=vect(0,0,0);
 
@@ -144,10 +145,10 @@ vect3D projectPointAABB(vect3D size, vect3D p, vect3D* n)
 
 	if(!n->x && !n->y && !n->z)
 	{
-		int32 d1=abs(p.x+size.x);int32 d2=abs(p.x-size.x);
-		int32 d3=abs(p.y+size.y);int32 d4=abs(p.y-size.y);
-		int32 d5=abs(p.z+size.z);int32 d6=abs(p.z-size.z);
-		int32 d=min(d1,d2);
+		int32_t d1=abs(p.x+size.x);int32_t d2=abs(p.x-size.x);
+		int32_t d3=abs(p.y+size.y);int32_t d4=abs(p.y-size.y);
+		int32_t d5=abs(p.z+size.z);int32_t d6=abs(p.z-size.z);
+		int32_t d=min(d1,d2);
 		d=min(d,min(d3,d4));
 		d=min(d,min(d5,d6));
 		if(d==d1){v.x=-size.x;n->x=-1;}
@@ -161,17 +162,19 @@ vect3D projectPointAABB(vect3D size, vect3D p, vect3D* n)
 	return v;
 }
 
-ARM_CODE bool collideLineRectangle(vect3D ro, vect3D ru1, vect3D ru2, vect3D rn, int32 rs1, int32 rs2, vect3D o, vect3D v, int32 d, vect3D* ip)
+ARM_CODE bool collideLineRectangle(vect3D ro, vect3D ru1, vect3D ru2, vect3D rn, int32_t rs1, int32_t rs2, vect3D o, vect3D v, int32_t d, vect3D* ip)
 {
-	int32 p1=dotProduct(v,rn);
+	int32_t p1=dotProduct(v,rn);
 	if(abs(p1)>10) //margin of error
 	{
-		int32 p2=dotProduct(vectDifference(ro,o),rn);
+		int32_t p2=dotProduct(vectDifference(ro,o),rn);
 		//int32 k=divf32(p2,p1);
-		int32 k=divv16(p2,p1);
-		if(k<0 || k>d){return false;}
+		int32_t k=divv16(p2,p1);
+		if(k<0 || k>d)
+            return false;
 		vect3D i=addVect(o,vectMult(v,k));
-		if(ip)*ip=i; //real position at this point
+		if(ip)
+            *ip=i; //real position at this point
 		i=vectDifference(i,ro);
 		i=vect(dotProduct(i,ru1),dotProduct(i,ru2),0);
 
@@ -180,25 +183,27 @@ ARM_CODE bool collideLineRectangle(vect3D ro, vect3D ru1, vect3D ru2, vect3D rn,
 	return false;
 }
 
-ARM_CODE bool clipSegmentOBB(int32* ss, vect3D *uu, vect3D* p1, vect3D* p2, vect3D vv, vect3D* uu1, vect3D* uu2, vect3D vv1, vect3D* n1, vect3D* n2, bool* b1, bool* b2, int32* k1, int32* k2)
+ARM_CODE bool clipSegmentOBB(int32_t* ss, vect3D *uu, vect3D* p1, vect3D* p2, vect3D vv, vect3D* uu1, vect3D* uu2, vect3D vv1, vect3D* n1, vect3D* n2, bool* b1, bool* b2, int32_t* k1, int32_t* k2)
 {
-	if(!p1 || !p2 || !uu1 || !uu2 || !n1 || !n2 || !b1 || !b2 || !k1 || !k2)return false;
+	if(!p1 || !p2 || !uu1 || !uu2 || !n1 || !n2 || !b1 || !b2 || !k1 || !k2)
+        return false;
 
 	if(uu1->x<-ss[0])
 	{
 		if(uu2->x>-ss[0])
 		{
-			int32 k=divv(abs(uu1->x+ss[0]),abs(vv1.x));
+			int32_t k=divv(abs(uu1->x+ss[0]),abs(vv1.x));
 				*uu1=addVect(*uu1,vectMult(vv1,k));
 				*p1=addVect(*p1,vectMult(vv,k));
 			*k1=max(*k1,k);
 			*n1=vect(-uu[0].x,-uu[0].y,-uu[0].z);
 			*b1=true;
-		}else return false;
+		}else 
+            return false;
 	}else{
 		if(uu2->x<-ss[0])
 		{
-			int32 k=divv(abs(uu1->x+ss[0]),abs(vv1.x));
+			int32_t k=divv(abs(uu1->x+ss[0]),abs(vv1.x));
 				*uu2=addVect(*uu1,vectMult(vv1,k));
 				*p2=addVect(*p1,vectMult(vv,k));
 			*k2=min(*k2,k);
@@ -211,7 +216,7 @@ ARM_CODE bool clipSegmentOBB(int32* ss, vect3D *uu, vect3D* p1, vect3D* p2, vect
 	{
 		if(uu2->x>ss[0])
 		{
-			int32 k=divv(abs(uu1->x-ss[0]),abs(vv1.x));
+			int32_t k=divv(abs(uu1->x-ss[0]),abs(vv1.x));
 				*uu2=addVect(*uu1,vectMult(vv1,k));
 				*p2=addVect(*p1,vectMult(vv,k));
 			*k2=min(*k2,k);
@@ -221,13 +226,14 @@ ARM_CODE bool clipSegmentOBB(int32* ss, vect3D *uu, vect3D* p1, vect3D* p2, vect
 	}else{
 		if(uu2->x<ss[0])
 		{
-			int32 k=divv(abs(uu1->x-ss[0]),abs(vv1.x));
+			int32_t k=divv(abs(uu1->x-ss[0]),abs(vv1.x));
 				*uu1=addVect(*uu1,vectMult(vv1,k));
 				*p1=addVect(*p1,vectMult(vv,k));
 			*k1=max(*k1,k);
 			*n1=(uu[0]);
 			*b1=true;
-		}else return false;
+		}else 
+            return false;
 	}
 
 
@@ -235,17 +241,18 @@ ARM_CODE bool clipSegmentOBB(int32* ss, vect3D *uu, vect3D* p1, vect3D* p2, vect
 	{
 		if(uu2->y>-ss[1])
 		{
-			int32 k=divv(abs(uu1->y+ss[1]),abs(vv1.y));
+			int32_t k=divv(abs(uu1->y+ss[1]),abs(vv1.y));
 				*uu1=addVect(*uu1,vectMult(vv1,k));
 				*p1=addVect(*p1,vectMult(vv,k));
 			*k1=max(*k1,k);
 			*n1=vect(-uu[1].x,-uu[1].y,-uu[1].z);
 			*b1=true;
-		}else return false;
+		}else 
+            return false;
 	}else{
 		if(uu2->y<-ss[1])
 		{
-			int32 k=divv(abs(uu1->y+ss[1]),abs(vv1.y));
+			int32_t k=divv(abs(uu1->y+ss[1]),abs(vv1.y));
 				*uu2=addVect(*uu1,vectMult(vv1,k));
 				*p2=addVect(*p1,vectMult(vv,k));
 			*k2=min(*k2,k);
@@ -258,7 +265,7 @@ ARM_CODE bool clipSegmentOBB(int32* ss, vect3D *uu, vect3D* p1, vect3D* p2, vect
 	{
 		if(uu2->y>ss[1])
 		{
-			int32 k=divv(abs(uu1->y-ss[1]),abs(vv1.y));
+			int32_t k=divv(abs(uu1->y-ss[1]),abs(vv1.y));
 				*uu2=addVect(*uu1,vectMult(vv1,k));
 				*p2=addVect(*p1,vectMult(vv,k));
 			*k2=min(*k2,k);
@@ -268,7 +275,7 @@ ARM_CODE bool clipSegmentOBB(int32* ss, vect3D *uu, vect3D* p1, vect3D* p2, vect
 	}else{
 		if(uu2->y<ss[1])
 		{
-			int32 k=divv(abs(uu1->y-ss[1]),abs(vv1.y));
+			int32_t k=divv(abs(uu1->y-ss[1]),abs(vv1.y));
 				*uu1=addVect(*uu1,vectMult(vv1,k));
 				*p1=addVect(*p1,vectMult(vv,k));
 			*k1=max(*k1,k);
@@ -282,7 +289,7 @@ ARM_CODE bool clipSegmentOBB(int32* ss, vect3D *uu, vect3D* p1, vect3D* p2, vect
 	{
 		if(uu2->z>-ss[2])
 		{
-			int32 k=divv(abs(uu1->z+ss[2]),abs(vv1.z));
+			int32_t k=divv(abs(uu1->z+ss[2]),abs(vv1.z));
 				*uu1=addVect(*uu1,vectMult(vv1,k));
 				*p1=addVect(*p1,vectMult(vv,k));
 			*k1=max(*k1,k);
@@ -292,7 +299,7 @@ ARM_CODE bool clipSegmentOBB(int32* ss, vect3D *uu, vect3D* p1, vect3D* p2, vect
 	}else{
 		if(uu2->z<-ss[2])
 		{
-			int32 k=divv(abs(uu1->z+ss[2]),abs(vv1.z));
+			int32_t k=divv(abs(uu1->z+ss[2]),abs(vv1.z));
 				*uu2=addVect(*uu1,vectMult(vv1,k));
 				*p2=addVect(*p1,vectMult(vv,k));
 			*k2=min(*k2,k);
@@ -305,7 +312,7 @@ ARM_CODE bool clipSegmentOBB(int32* ss, vect3D *uu, vect3D* p1, vect3D* p2, vect
 	{
 		if(uu2->z>ss[2])
 		{
-			int32 k=divv(abs(uu1->z-ss[2]),abs(vv1.z));
+			int32_t k=divv(abs(uu1->z-ss[2]),abs(vv1.z));
 				*uu2=addVect(*uu1,vectMult(vv1,k));
 				*p2=addVect(*p1,vectMult(vv,k));
 			*k2=min(*k2,k);
@@ -315,7 +322,7 @@ ARM_CODE bool clipSegmentOBB(int32* ss, vect3D *uu, vect3D* p1, vect3D* p2, vect
 	}else{
 		if(uu2->z<ss[2])
 		{
-			int32 k=divv(abs(uu1->z-ss[2]),abs(vv1.z));
+			int32_t k=divv(abs(uu1->z-ss[2]),abs(vv1.z));
 				*uu1=addVect(*uu1,vectMult(vv1,k));
 				*p1=addVect(*p1,vectMult(vv,k));
 			*k1=max(*k1,k);
@@ -328,13 +335,16 @@ ARM_CODE bool clipSegmentOBB(int32* ss, vect3D *uu, vect3D* p1, vect3D* p2, vect
 
 ARM_CODE void collideOBBs(OBB_struct* o1, OBB_struct* o2)
 {
-	if(!o1 || !o2)return;
-	if(o1==o2)return;
+	if(!o1 || !o2)
+        return;
+	if(o1==o2)
+        return;
 
 	if(!collideAABB(vect(o1->AABBo.x-MAXPENETRATIONBOX,o1->AABBo.y-MAXPENETRATIONBOX,o1->AABBo.z-MAXPENETRATIONBOX),
 					vect(o1->AABBs.x+2*MAXPENETRATIONBOX,o1->AABBs.y+2*MAXPENETRATIONBOX,o1->AABBs.z+2*MAXPENETRATIONBOX),
 					vect(o2->AABBo.x-MAXPENETRATIONBOX,o2->AABBo.y-MAXPENETRATIONBOX,o2->AABBo.z-MAXPENETRATIONBOX),
-					vect(o2->AABBs.x+2*MAXPENETRATIONBOX,o2->AABBs.y+2*MAXPENETRATIONBOX,o2->AABBs.z+2*MAXPENETRATIONBOX)))return;
+					vect(o2->AABBs.x+2*MAXPENETRATIONBOX,o2->AABBs.y+2*MAXPENETRATIONBOX,o2->AABBs.z+2*MAXPENETRATIONBOX)))
+        return;
 
 	vect3D v[8],v2[8];
 	getOBBVertices(o1,v);
@@ -352,7 +362,6 @@ ARM_CODE void collideOBBs(OBB_struct* o1, OBB_struct* o2)
 	getVertices(o1->size, vect(dotProduct(pp,u1),dotProduct(pp,u2),dotProduct(pp,u3)), vect(dotProduct(z1,u1),dotProduct(z1,u2),dotProduct(z1,u3)),
 		vect(dotProduct(z2,u1),dotProduct(z2,u2),dotProduct(z2,u3)), vect(dotProduct(z3,u1),dotProduct(z3,u2),dotProduct(z3,u3)), v2);
 
-	int i;
 	/*for(i=0;i<8;i++)
 	{
 		//v2[i]=vectDifference(v[i],o2->position);
@@ -390,15 +399,15 @@ ARM_CODE void collideOBBs(OBB_struct* o1, OBB_struct* o2)
 		uu[0]=vect(o2->transformationMatrix[0],o2->transformationMatrix[3],o2->transformationMatrix[6]);
 		uu[1]=vect(o2->transformationMatrix[1],o2->transformationMatrix[4],o2->transformationMatrix[7]);
 		uu[2]=vect(o2->transformationMatrix[2],o2->transformationMatrix[5],o2->transformationMatrix[8]);
-	int32 s[3];
+	int32_t s[3];
 		s[0]=o1->size.x;
 		s[1]=o1->size.y;
 		s[2]=o1->size.z;
-	int32 ss[3];
+	int32_t ss[3];
 		ss[0]=o2->size.x;//+MAXPENETRATIONBOX;
 		ss[1]=o2->size.y;//+MAXPENETRATIONBOX;
 		ss[2]=o2->size.z;//+MAXPENETRATIONBOX;
-	for(i=0;i<NUMOBBSEGMENTS;i++)
+	for(int i=0;i<NUMOBBSEGMENTS;i++)
 	{
 		vect3D uu1=v2[OBBSegments[i][0]];
 		vect3D uu2=v2[OBBSegments[i][1]];
@@ -414,8 +423,8 @@ ARM_CODE void collideOBBs(OBB_struct* o1, OBB_struct* o2)
 				vect3D p2=v[OBBSegments[i][1]];
 				vect3D n1=vect(0,0,0);
 				vect3D n2=vect(0,0,0);
-				int32 k1=0;
-				int32 k2=s[OBBSegmentsPD[i][1]]*2;
+				int32_t k1=0;
+				int32_t k2=s[OBBSegmentsPD[i][1]]*2;
 				bool b1=false;
 				bool b2=false;
 				if(!clipSegmentOBB(ss,uu,&p1,&p2,vv,&uu1,&uu2,vv1,&n1,&n2,&b1,&b2,&k1,&k2))break;
@@ -461,11 +470,12 @@ ARM_CODE void collideOBBs(OBB_struct* o1, OBB_struct* o2)
 	}
 }
 
-void initTransformationMatrix(int32* m, s32 cosine, s32 sine)
+void initTransformationMatrix(int32_t* m, s32 cosine, s32 sine)
 {
-	if(!m)return;
-	int i;
-	for(i=0;i<9;i++)m[i]=0;
+	if(!m)
+        return;
+	for(int i=0;i<9;i++)
+        m[i]=0;
 
 	m[4]=inttof32(1);
 
@@ -478,7 +488,7 @@ void initTransformationMatrix(int32* m, s32 cosine, s32 sine)
 
 ARM_CODE void getVertices(vect3D s, vect3D p, vect3D u1, vect3D u2, vect3D u3, vect3D* v)
 {
-	int32 m2[9];
+	int32_t m2[9];
 	m2[0]=mulf32(u1.x,s.x);m2[3]=mulf32(u1.y,s.x);m2[6]=mulf32(u1.z,s.x);
 	m2[1]=mulf32(u2.x,s.y);m2[4]=mulf32(u2.y,s.y);m2[7]=mulf32(u2.z,s.y);
 	m2[2]=mulf32(u3.x,s.z);m2[5]=mulf32(u3.y,s.z);m2[8]=mulf32(u3.z,s.z);
@@ -499,14 +509,13 @@ ARM_CODE void getVertices(vect3D s, vect3D p, vect3D u1, vect3D u2, vect3D u3, v
 
 ARM_CODE void getOBBVertices(OBB_struct* o, vect3D* v)
 {
-	if(!o || !v)return;
-	int32* m=o->transformationMatrix;
+	if(!o || !v)
+        return;
+	int32_t* m=o->transformationMatrix;
 	getVertices(o->size,o->position,vect(m[0],m[3],m[6]),vect(m[1],m[4],m[7]),vect(m[2],m[5],m[8]),v);
-
-	int i;
 	vect3D mm=o->position;
 	vect3D M=o->position;
-	for(i=0;i<8;i++)
+	for(int i=0;i<8;i++)
 	{
 		//v[i]=addVect(v[i],o->position);
 		if(v[i].x<mm.x)mm.x=v[i].x;
@@ -534,15 +543,16 @@ ARM_CODE void applyOBBImpulsePlane(OBB_struct* o, u8 pID)
 	vect3D r=vectDifference(cp->point,o->position);
 	vect3D v=addVect(o->velocity,vectProduct(o->angularVelocity,r));
 
-	const int32 CoefficientOfRestitution=floattof32(0.2f);
+	const int32_t CoefficientOfRestitution=floattof32(0.2f);
 
-	int32 iN=-mulf32((floattof32(1)+CoefficientOfRestitution),dotProduct(v,cp->normal));
+	int32_t iN=-mulf32((floattof32(1)+CoefficientOfRestitution),dotProduct(v,cp->normal));
 	//int32 invMass=divf32(inttof32(1),o->mass);
-	int32 invMass=divv16(inttof32(1),o->mass);
-	int32 iD=invMass+dotProduct(vectProduct(evalVectMatrix33(o->invWInertiaMatrix,vectProduct(r,cp->normal)),r),cp->normal);
+	int32_t invMass=divv16(inttof32(1),o->mass);
+	int32_t iD=invMass+dotProduct(vectProduct(evalVectMatrix33(o->invWInertiaMatrix,vectProduct(r,cp->normal)),r),cp->normal);
     //iN=divf32(iN,iD);
     iN=divv16(iN,iD);
-	if(iN<0)iN=0;
+	if(iN<0)
+        iN=0;
 	//vect3D imp=vectMult(cp->normal,iN);
 	vect3D imp=vectMult(cp->normal,iN+cp->penetration/2); //added bias adds jitter, but prevents sinking.
 
@@ -558,20 +568,23 @@ ARM_CODE void applyOBBImpulsePlane(OBB_struct* o, u8 pID)
 	{
 		vect3D tangent=vect(0,0,0);
 		tangent=vectDifference(v,(vectMult(cp->normal,dotProduct(v, cp->normal))));
-		if(magnitude(tangent)<1)return;
+		if(magnitude(tangent)<1)
+            return;
 		tangent=normalize(tangent);
 
-		int32 kTangent=invMass+dotProduct(tangent,vectProduct(evalVectMatrix33(o->invWInertiaMatrix,(vectProduct(r, tangent))), r));
+		int32_t kTangent=invMass+dotProduct(tangent,vectProduct(evalVectMatrix33(o->invWInertiaMatrix,(vectProduct(r, tangent))), r));
 
-		int32 vt = dotProduct(v, tangent);
+		int32_t vt = dotProduct(v, tangent);
 		//int32 dPt = divf32((-vt),kTangent);
-		int32 dPt = divv16((-vt),kTangent);
+		int32_t dPt = divv16((-vt),kTangent);
 
-		const int32 frictionCONST=floattof32(1.0f);
+		const int32_t frictionCONST=floattof32(1.0f);
 
 		int32 maxPt=abs(mulf32(frictionCONST,iN));
-		if(dPt<-maxPt)dPt=-maxPt;
-		else if(dPt>maxPt)dPt=maxPt;
+		if(dPt<-maxPt)
+            dPt=-maxPt;
+		else if(dPt>maxPt)
+            dPt=maxPt;
 
 		// Apply contact impulse
 		vect3D P = vectMult(tangent,dPt);
@@ -598,14 +611,14 @@ ARM_CODE void applyOBBImpulseOBB(OBB_struct* o, u8 pID)
 	vect3D v2=addVect(o2->velocity,vectProduct(o2->angularVelocity,r2));
 	vect3D dv=vectDifference(v1,v2);
 
-	const int32 CoefficientOfRestitution=floattof32(0.5f);
+	const int32_t CoefficientOfRestitution=floattof32(0.5f);
 
-	int32 iN=-mulf32((floattof32(1)+CoefficientOfRestitution),dotProduct(dv,cp->normal));
+	int32_t iN=-mulf32((floattof32(1)+CoefficientOfRestitution),dotProduct(dv,cp->normal));
 	//int32 invMass1=divf32(inttof32(1),o->mass);
 	//int32 invMass2=divf32(inttof32(1),o2->mass);
-	int32 invMass1=divv16(inttof32(1),o->mass);
-	int32 invMass2=divv16(inttof32(1),o2->mass);
-	int32 iD=invMass1+invMass2+dotProduct(addVect(vectProduct(evalVectMatrix33(o->invWInertiaMatrix,vectProduct(r1,cp->normal)),r1),vectProduct(evalVectMatrix33(o2->invWInertiaMatrix,vectProduct(r2,cp->normal)),r2)),cp->normal);
+	int32_t invMass1=divv16(inttof32(1),o->mass);
+	int32_t invMass2=divv16(inttof32(1),o2->mass);
+	int32_t iD=invMass1+invMass2+dotProduct(addVect(vectProduct(evalVectMatrix33(o->invWInertiaMatrix,vectProduct(r1,cp->normal)),r1),vectProduct(evalVectMatrix33(o2->invWInertiaMatrix,vectProduct(r2,cp->normal)),r2)),cp->normal);
 	//iN=divf32(iN,iD);
 	iN=divv16(iN,iD);
 	if(iN<0)
@@ -634,16 +647,16 @@ ARM_CODE void applyOBBImpulseOBB(OBB_struct* o, u8 pID)
             return;
 		tangent=normalize(tangent);
 
-		int32 kTangent=invMass1+invMass2+dotProduct(tangent,addVect(vectProduct(evalVectMatrix33(o->invWInertiaMatrix,(vectProduct(r1, tangent))), r1),
+		int32_t kTangent=invMass1+invMass2+dotProduct(tangent,addVect(vectProduct(evalVectMatrix33(o->invWInertiaMatrix,(vectProduct(r1, tangent))), r1),
 																	vectProduct(evalVectMatrix33(o->invWInertiaMatrix,(vectProduct(r2, tangent))), r2)));
 
-		int32 vt = dotProduct(dv, tangent);
+		int32_t vt = dotProduct(dv, tangent);
 		//int32 dPt = divf32((-vt),kTangent);
-		int32 dPt = divv16((-vt),kTangent);
+		int32_t dPt = divv16((-vt),kTangent);
 
-		const int32 frictionCONST=floattof32(0.5f);
+		const int32_t frictionCONST=floattof32(0.5f);
 
-		int32 maxPt=abs(mulf32(frictionCONST,iN));
+		int32_t maxPt=abs(mulf32(frictionCONST,iN));
 		if(dPt<-maxPt)
             dPt=-maxPt;
 		else if(dPt>maxPt)
@@ -666,9 +679,9 @@ ARM_CODE void applyOBBImpulseOBB(OBB_struct* o, u8 pID)
 
 void applyOBBImpulses(OBB_struct* o)
 {
-	if(!o)return;
-	int i;
-	for(i=0;i<o->numContactPoints;i++)
+	if(!o)
+        return;
+	for(int i=0;i<o->numContactPoints;i++)
 	{
 		switch(o->contactPoints[i].type)
 		{
@@ -694,23 +707,108 @@ ARM_CODE void integrate(OBB_struct* o, float dt)
 {
 	if(!o)
         return;
+
+    //NOGBA("dt is %f\n", dt);
 	//o->position=addVect(o->position,vectMult(o->velocity,dt));
 	//o->position=addVect(o->position,vect(mulf32(o->velocity.x,dt)>>TIMEPREC,mulf32(o->velocity.y,dt)>>TIMEPREC,mulf32(o->velocity.z,dt)>>TIMEPREC));
 	//o->position=addVect(o->position,vect((mulf32((o->velocity.x+o->oldVelocity.x)/2,dt)>>TIMEPREC),
 	//									(mulf32((o->velocity.y+o->oldVelocity.y)/2,dt)>>TIMEPREC),
 	//									(mulf32((o->velocity.z+o->oldVelocity.z)/2,dt)>>TIMEPREC)));
-	o->position=addVect(o->position,vect(o->velocity.x*dt,o->velocity.y*dt,o->velocity.z*dt));
 
-	int32 m[9], m2[9];
+
+    //
+	//o->position=addVect(o->position,vect(o->velocity.x*dt,o->velocity.y*dt,o->velocity.z*dt));
+	//o->velocity=addVect(o->velocity,divideVect(vect(o->forces.x*dt,o->forces.y*dt,o->forces.z*dt),o->mass));
+
+	//vect3D pos=addVect(o->position,vect(o->velocity.x*dt,o->velocity.y*dt,o->velocity.z*dt));
+	//vect3D velocity=addVect(o->velocity,divideVect(vect(o->forces.x*dt,o->forces.y*dt,o->forces.z*dt),o->mass));
+
+
+    int32_t DT=dt*(1ll<<32);  
+    int32_t x,y,z;
+    x=o->position.x;
+    y=o->position.y;
+    z=o->position.z;
+    int32_t vx=(int64_t)o->velocity.x;
+    int32_t vy=(int64_t)o->velocity.y;
+    int32_t vz=(int64_t)o->velocity.z;
+
+#if 0
+    int32_t ax=((int64_t)o->forces.x<<12)/o->mass;
+    int32_t ay=((int64_t)o->forces.y<<12)/o->mass;
+    int32_t az=((int64_t)o->forces.z<<12)/o->mass;
+    int32_t nvx=vx+(int32_t)(((int64_t)ax*DT)>>32);
+    int32_t nvy=vy+(int32_t)(((int64_t)ay*DT)>>32);
+    int32_t nvz=vz+(int32_t)(((int64_t)az*DT)>>32);
+#else
+    int32_t fx=((int64_t)o->forces.x*DT)>>32;
+    int32_t fy=((int64_t)o->forces.y*DT)>>32;
+    int32_t fz=((int64_t)o->forces.z*DT)>>32;
+
+    int32_t nvx=vx+(int32_t)((fx<<12)/o->mass);
+    int32_t nvy=vy+(int32_t)((fy<<12)/o->mass);
+    int32_t nvz=vz+(int32_t)((fz<<12)/o->mass);
+
+#endif
+#if 1
+    int32_t dx=((int64_t)vx*DT+(int64_t)nvx*DT)>>32;
+    int32_t dy=((int64_t)vy*DT+(int64_t)nvy*DT)>>32;
+    int32_t dz=((int64_t)vz*DT+(int64_t)nvz*DT)>>32;
+#else
+    int32_t dx=((int64_t)(vx+nvx)*DT)>>32;
+    int32_t dy=((int64_t)(vy+nvy)*DT)>>32;
+    int32_t dz=((int64_t)(vz+nvz)*DT)>>32;
+
+#endif
+
+    dx>>=1;
+    dy>>=1;
+    dz>>=1;
+    o->position.x=x+dx;
+    o->position.y=y+dy;
+    o->position.z=z+dz;
+    o->velocity.x=nvx;
+    o->velocity.y=nvy;
+    o->velocity.z=nvz;
+
+
+    //o->position=pos;
+    //o->velocity=velocity;
+
+
+
+    //v=v+(o->forces.x*dt,o->forces.y*dt,o->forces.z*dt)/o->mass
+
+
+	int32_t m[9], m2[9];
 	//m[0]=0;m[1]=-(mulf32(dt,o->angularVelocity.z));m[2]=(mulf32(dt,o->angularVelocity.y));
     //m[3]=-m[1];m[4]=0;m[5]=-(mulf32(dt,o->angularVelocity.x));
 	//m[0]=0;m[1]=-(mulf32(dt,o->angularVelocity.z)>>TIMEPREC);m[2]=(mulf32(dt,o->angularVelocity.y)>>TIMEPREC);
     //m[3]=-m[1];m[4]=0;m[5]=-(mulf32(dt,o->angularVelocity.x)>>TIMEPREC);
 	//m[0]=0;m[1]=-((mulf32(dt,(o->angularVelocity.z+o->oldAngularVelocity.z)/2)>>TIMEPREC));m[2]=((mulf32(dt,(o->angularVelocity.y+o->oldAngularVelocity.y)/2)>>TIMEPREC));
     //m[3]=-m[1];m[4]=0;m[5]=-((mulf32(dt,(o->angularVelocity.x+o->oldAngularVelocity.x)/2)>>TIMEPREC));
-	m[0]=0;m[1]=-((dt*o->angularVelocity.z));m[2]=((dt*o->angularVelocity.y));
-    m[3]=-m[1];m[4]=0;m[5]=-((dt*o->angularVelocity.x));
-    m[6]=-m[2];m[7]=-m[5];m[8]=0;
+#if 0
+	m[0]=0;
+    m[1]=-((dt*o->angularVelocity.z));
+    m[2]=((dt*o->angularVelocity.y));
+    m[3]=-m[1];
+    m[4]=0;
+    m[5]=-((dt*o->angularVelocity.x));
+    m[6]=-m[2];
+    m[7]=-m[5];
+    m[8]=0;
+#else
+	m[0]=0;
+    m[1]=((int64_t)-DT*o->angularVelocity.z)>>32;
+    m[2]=((int64_t)DT*o->angularVelocity.y)>>32;
+    m[3]=-m[1];
+    m[4]=0;
+    m[5]=((int64_t)-DT*o->angularVelocity.x)>>32;
+    m[6]=-m[2];
+    m[7]=-m[5];
+    m[8]=0;
+#endif
+
 	multMatrix33(m,o->transformationMatrix,m2);
 	addMatrix33(o->transformationMatrix,m2,o->transformationMatrix);
 
@@ -719,17 +817,23 @@ ARM_CODE void integrate(OBB_struct* o, float dt)
 	//o->velocity=addVect(o->velocity,divideVect(vect((mulf32((o->forces.x+o->oldForces.x)/2,dt)>>TIMEPREC),
 	//											(mulf32((o->forces.y+o->oldForces.y)/2,dt)>>TIMEPREC),
 	//											(mulf32((o->forces.z+o->oldForces.z)/2,dt)>>TIMEPREC)),o->mass));
-	o->velocity=addVect(o->velocity,divideVect(vect(o->forces.x*dt,o->forces.y*dt,o->forces.z*dt),o->mass));
+
+
+	//o->velocity=addVect(o->velocity,divideVect(vect(o->forces.x*dt,o->forces.y*dt,o->forces.z*dt),o->mass));
 
 	//o->angularMomentum=addVect(o->angularMomentum,vectMult(o->moment,dt));
 	//o->angularMomentum=addVect(o->angularMomentum,vect(mulf32(o->moment.x,dt)>>TIMEPREC,mulf32(o->moment.y,dt)>>TIMEPREC,mulf32(o->moment.z,dt)>>TIMEPREC));
 	//o->angularMomentum=addVect(o->angularMomentum,vect((mulf32((o->moment.x+o->oldMoment.x)/2,dt)>>TIMEPREC),
 	//												(mulf32((o->moment.y+o->oldMoment.y)/2,dt)>>TIMEPREC),
 	//												(mulf32((o->moment.z+o->oldMoment.z)/2,dt)>>TIMEPREC)));
-	o->angularMomentum=addVect(o->angularMomentum,vect(o->moment.x*dt,o->moment.y*dt,o->moment.z*dt));
+
+	//o->angularMomentum=addVect(o->angularMomentum,vect(o->moment.x*dt,o->moment.y*dt,o->moment.z*dt));
+    o->angularMomentum.x+=((int64_t)o->moment.x*DT)>>32;
+    o->angularMomentum.y+=((int64_t)o->moment.y*DT)>>32;
+    o->angularMomentum.z+=((int64_t)o->moment.z*DT)>>32;
+
 
 	fixMatrix(o->transformationMatrix);
-
     // compute auxiliary quantities
 	transposeMatrix33(o->transformationMatrix,m2);
 	multMatrix33(m2,o->invInertiaMatrix,m);
@@ -744,10 +848,9 @@ void checkOBBCollisions(OBB_struct* o, bool sleep)
 {
 	if(!o)
         return;
-	int i;
 	o->numContactPoints=0;
 	// planeOBBContacts(&testPlane,o);
-	for(i=0;i<NUMOBJECTS;i++)
+	for(int i=0;i<NUMOBJECTS;i++)
 	{
 		if(objects[i].used && o!=&objects[i] && (!sleep || !objects[i].sleep))
 		{
@@ -759,8 +862,7 @@ void checkOBBCollisions(OBB_struct* o, bool sleep)
 
 void wakeOBBs(void)
 {
-	int i;
-	for(i=0;i<NUMOBJECTS;i++)
+	for(int i=0;i<NUMOBJECTS;i++)
 	{
 		if(objects[i].used)
 		{
@@ -784,15 +886,23 @@ ARM_CODE void calculateOBBEnergy(OBB_struct* o)
 
 ARM_CODE void simulate(OBB_struct* o, float dt2)
 {
-	if(!o)return;
+	if(!o)
+        return;
+
+    //NOGBA("dt2 is %f\n", dt2);
+
+
 	//int32 dt=(dt2)<<TIMEPREC;
-	float dt=f32tofloat(dt2);
+	//float dt=f32tofloat(dt2);
+    float dt=dt2*(1.0f/(1<<12));
+    //
+    //NOGBA("dt is %f\n", dt);
     float currentTime=0;
     float targetTime=dt;
 
 	applyOBBForce(o,o->position,vect(0,-inttof32(2),0)); //gravity
-	o->forces=addVect(o->forces,vectDivInt(o->velocity,-25));
-	o->moment=addVect(o->moment,vectDivInt(o->angularVelocity,-20));
+	//o->forces=addVect(o->forces,vectDivInt(o->velocity,-25)); //some weird friction force?
+	//o->moment=addVect(o->moment,vectDivInt(o->angularVelocity,-20));//another weird friction?
 
 	if(!o->sleep)
 	{
@@ -800,16 +910,8 @@ ARM_CODE void simulate(OBB_struct* o, float dt2)
 		{
 			OBB_struct bkp;
 			copyOBB(o,&bkp);
-
-			// cpuStartTiming(0);
 			integrate(o,targetTime-currentTime);
-			// integ+=cpuEndTiming();
-
-			// cpuStartTiming(0);
 			checkOBBCollisions(o, false);
-			// coll+=cpuEndTiming();
-
-			// cpuStartTiming(0);
 			if(o->numContactPoints && o->maxPenetration>PENETRATIONTHRESHOLD)
 			{
 				targetTime=(currentTime+targetTime)/2;
@@ -832,10 +934,10 @@ ARM_CODE void simulate(OBB_struct* o, float dt2)
 				currentTime=targetTime;
 				targetTime=dt;
 			}
-			// impul+=cpuEndTiming();
 		}
 		// collideSpherePlatforms(&o->position,o->size.x-8);
-	}else sleeping++;
+	}else 
+        sleeping++;
 
 	calculateOBBEnergy(o);
 	bool oldSleep=o->sleep;
@@ -848,11 +950,11 @@ ARM_CODE void simulate(OBB_struct* o, float dt2)
 
 	if(o->sleep)
 	{
-		if(oldSleep)checkOBBCollisions(o, true); //make it so sleeping collisions don't have to check vs AARs and other sleeping OBBs
+		if(oldSleep)
+            checkOBBCollisions(o, true); //make it so sleeping collisions don't have to check vs AARs and other sleeping OBBs
 		{
-			int i;
 			bool canSleep=oldSleep;
-			for(i=0;i<o->numContactPoints;i++)
+			for(int i=0;i<o->numContactPoints;i++)
 			{
 				switch(o->contactPoints[i].type)
 				{
@@ -881,12 +983,17 @@ ARM_CODE void simulate(OBB_struct* o, float dt2)
 						break;
 				}
 			}
-			if(!canSleep)o->sleep=false;
+			if(!canSleep)
+                o->sleep=false;
 		}
 	}
 
 	o->forces=vect(0,0,0);
 	o->moment=vect(0,0,0);
+
+	//o->forces=vectDivInt(o->forces,2);
+	//o->moment=vectDivInt(o->moment,2);
+
 }
 
 ARM_CODE bool pointInFrontOfPortal(portal_struct* p, vect3D pos, int32* z) //assuming correct normal
@@ -901,9 +1008,10 @@ ARM_CODE bool pointInFrontOfPortal(portal_struct* p, vect3D pos, int32* z) //ass
 
 ARM_CODE void updateOBBPortals(OBB_struct* o, u8 id, bool init)
 {
-	if(!o&&id<2)return;
+	if(!o&&id<2)
+        return;
 
-	int32 z;
+	int32_t z;
 	o->oldPortal[id]=o->portal[id];
 	o->portal[id]=((dotProduct(vectDifference(o->position,portal[id].position),portal[id].normal)>0)&1)|(((pointInFrontOfPortal(&portal[id],o->position,&z))&1)<<1);
 
@@ -945,9 +1053,8 @@ void updateOBB(OBB_struct* o)
 
 void updateOBBs(void)
 {
-	int i;
 	sleeping=0;
-	for(i=0;i<NUMOBJECTS;i++)
+	for(int i=0;i<NUMOBJECTS;i++)
 	{
 		if(objects[i].used)
 		{
@@ -956,7 +1063,7 @@ void updateOBBs(void)
 	}
 }
 
-OBB_struct* createOBB(u8 id, vect3D size, vect3D position, int32 mass, s32 cosine, s32 sine)
+OBB_struct* createOBB(u8 id, vect3D size, vect3D position, int32_t mass, s32 cosine, s32 sine)
 {
 	int i=id;
 	//if(!objects[i].used)
@@ -969,8 +1076,7 @@ OBB_struct* createOBB(u8 id, vect3D size, vect3D position, int32 mass, s32 cosin
 
 void drawOBBs(void)
 {
-	int i;
-	for(i=0;i<NUMOBJECTS;i++)
+	for(int i=0;i<NUMOBJECTS;i++)
 	{
 		if(objects[i].used)
 		{
