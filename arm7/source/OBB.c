@@ -709,21 +709,6 @@ ARM_CODE void integrate(OBB_struct* o, float dt)
         return;
 
     //NOGBA("dt is %f\n", dt);
-	//o->position=addVect(o->position,vectMult(o->velocity,dt));
-	//o->position=addVect(o->position,vect(mulf32(o->velocity.x,dt)>>TIMEPREC,mulf32(o->velocity.y,dt)>>TIMEPREC,mulf32(o->velocity.z,dt)>>TIMEPREC));
-	//o->position=addVect(o->position,vect((mulf32((o->velocity.x+o->oldVelocity.x)/2,dt)>>TIMEPREC),
-	//									(mulf32((o->velocity.y+o->oldVelocity.y)/2,dt)>>TIMEPREC),
-	//									(mulf32((o->velocity.z+o->oldVelocity.z)/2,dt)>>TIMEPREC)));
-
-
-    //
-	//o->position=addVect(o->position,vect(o->velocity.x*dt,o->velocity.y*dt,o->velocity.z*dt));
-	//o->velocity=addVect(o->velocity,divideVect(vect(o->forces.x*dt,o->forces.y*dt,o->forces.z*dt),o->mass));
-
-	//vect3D pos=addVect(o->position,vect(o->velocity.x*dt,o->velocity.y*dt,o->velocity.z*dt));
-	//vect3D velocity=addVect(o->velocity,divideVect(vect(o->forces.x*dt,o->forces.y*dt,o->forces.z*dt),o->mass));
-
-
     int32_t DT=dt*(1ll<<32);  
     int32_t x,y,z;
     x=o->position.x;
@@ -732,72 +717,22 @@ ARM_CODE void integrate(OBB_struct* o, float dt)
     int32_t vx=(int64_t)o->velocity.x;
     int32_t vy=(int64_t)o->velocity.y;
     int32_t vz=(int64_t)o->velocity.z;
-
-#if 0
-    int32_t ax=((int64_t)o->forces.x<<12)/o->mass;
-    int32_t ay=((int64_t)o->forces.y<<12)/o->mass;
-    int32_t az=((int64_t)o->forces.z<<12)/o->mass;
-    int32_t nvx=vx+(int32_t)(((int64_t)ax*DT)>>32);
-    int32_t nvy=vy+(int32_t)(((int64_t)ay*DT)>>32);
-    int32_t nvz=vz+(int32_t)(((int64_t)az*DT)>>32);
-#else
     int32_t fx=((int64_t)o->forces.x*DT)>>32;
     int32_t fy=((int64_t)o->forces.y*DT)>>32;
     int32_t fz=((int64_t)o->forces.z*DT)>>32;
-
     int32_t nvx=vx+(int32_t)((fx<<12)/o->mass);
     int32_t nvy=vy+(int32_t)((fy<<12)/o->mass);
     int32_t nvz=vz+(int32_t)((fz<<12)/o->mass);
-
-#endif
-#if 1
-    int32_t dx=((int64_t)vx*DT+(int64_t)nvx*DT)>>32;
-    int32_t dy=((int64_t)vy*DT+(int64_t)nvy*DT)>>32;
-    int32_t dz=((int64_t)vz*DT+(int64_t)nvz*DT)>>32;
-#else
     int32_t dx=((int64_t)(vx+nvx)*DT)>>32;
     int32_t dy=((int64_t)(vy+nvy)*DT)>>32;
     int32_t dz=((int64_t)(vz+nvz)*DT)>>32;
-
-#endif
-
-    dx>>=1;
-    dy>>=1;
-    dz>>=1;
-    o->position.x=x+dx;
-    o->position.y=y+dy;
-    o->position.z=z+dz;
+    o->position.x=x+(dx>>1);
+    o->position.y=y+(dy>>1);
+    o->position.z=z+(dz>>1);
     o->velocity.x=nvx;
     o->velocity.y=nvy;
     o->velocity.z=nvz;
-
-
-    //o->position=pos;
-    //o->velocity=velocity;
-
-
-
-    //v=v+(o->forces.x*dt,o->forces.y*dt,o->forces.z*dt)/o->mass
-
-
 	int32_t m[9], m2[9];
-	//m[0]=0;m[1]=-(mulf32(dt,o->angularVelocity.z));m[2]=(mulf32(dt,o->angularVelocity.y));
-    //m[3]=-m[1];m[4]=0;m[5]=-(mulf32(dt,o->angularVelocity.x));
-	//m[0]=0;m[1]=-(mulf32(dt,o->angularVelocity.z)>>TIMEPREC);m[2]=(mulf32(dt,o->angularVelocity.y)>>TIMEPREC);
-    //m[3]=-m[1];m[4]=0;m[5]=-(mulf32(dt,o->angularVelocity.x)>>TIMEPREC);
-	//m[0]=0;m[1]=-((mulf32(dt,(o->angularVelocity.z+o->oldAngularVelocity.z)/2)>>TIMEPREC));m[2]=((mulf32(dt,(o->angularVelocity.y+o->oldAngularVelocity.y)/2)>>TIMEPREC));
-    //m[3]=-m[1];m[4]=0;m[5]=-((mulf32(dt,(o->angularVelocity.x+o->oldAngularVelocity.x)/2)>>TIMEPREC));
-#if 0
-	m[0]=0;
-    m[1]=-((dt*o->angularVelocity.z));
-    m[2]=((dt*o->angularVelocity.y));
-    m[3]=-m[1];
-    m[4]=0;
-    m[5]=-((dt*o->angularVelocity.x));
-    m[6]=-m[2];
-    m[7]=-m[5];
-    m[8]=0;
-#else
 	m[0]=0;
     m[1]=((int64_t)-DT*o->angularVelocity.z)>>32;
     m[2]=((int64_t)DT*o->angularVelocity.y)>>32;
@@ -807,34 +742,13 @@ ARM_CODE void integrate(OBB_struct* o, float dt)
     m[6]=-m[2];
     m[7]=-m[5];
     m[8]=0;
-#endif
-
 	multMatrix33(m,o->transformationMatrix,m2);
 	addMatrix33(o->transformationMatrix,m2,o->transformationMatrix);
-
-	//o->velocity=addVect(o->velocity,divideVect(vectMult(o->forces,dt),o->mass));
-	//o->velocity=addVect(o->velocity,divideVect(vect(mulf32(o->forces.x,dt)>>TIMEPREC,mulf32(o->forces.y,dt)>>TIMEPREC,mulf32(o->forces.z,dt)>>TIMEPREC),o->mass));
-	//o->velocity=addVect(o->velocity,divideVect(vect((mulf32((o->forces.x+o->oldForces.x)/2,dt)>>TIMEPREC),
-	//											(mulf32((o->forces.y+o->oldForces.y)/2,dt)>>TIMEPREC),
-	//											(mulf32((o->forces.z+o->oldForces.z)/2,dt)>>TIMEPREC)),o->mass));
-
-
-	//o->velocity=addVect(o->velocity,divideVect(vect(o->forces.x*dt,o->forces.y*dt,o->forces.z*dt),o->mass));
-
-	//o->angularMomentum=addVect(o->angularMomentum,vectMult(o->moment,dt));
-	//o->angularMomentum=addVect(o->angularMomentum,vect(mulf32(o->moment.x,dt)>>TIMEPREC,mulf32(o->moment.y,dt)>>TIMEPREC,mulf32(o->moment.z,dt)>>TIMEPREC));
-	//o->angularMomentum=addVect(o->angularMomentum,vect((mulf32((o->moment.x+o->oldMoment.x)/2,dt)>>TIMEPREC),
-	//												(mulf32((o->moment.y+o->oldMoment.y)/2,dt)>>TIMEPREC),
-	//												(mulf32((o->moment.z+o->oldMoment.z)/2,dt)>>TIMEPREC)));
-
-	//o->angularMomentum=addVect(o->angularMomentum,vect(o->moment.x*dt,o->moment.y*dt,o->moment.z*dt));
-
 	fixMatrix(o->transformationMatrix);
     // compute auxiliary quantities
 	transposeMatrix33(o->transformationMatrix,m2);
 	multMatrix33(m2,o->invInertiaMatrix,m);
 	multMatrix33(m,o->transformationMatrix,o->invWInertiaMatrix);
-
     o->angularMomentum.x+=((int64_t)o->moment.x*DT)>>32;
     o->angularMomentum.y+=((int64_t)o->moment.y*DT)>>32;
     o->angularMomentum.z+=((int64_t)o->moment.z*DT)>>32;
