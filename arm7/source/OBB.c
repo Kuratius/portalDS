@@ -429,10 +429,10 @@ ARM_CODE void collideOBBs(OBB_struct* o1, OBB_struct* o2)
 				bool b2=false;
 				if(!clipSegmentOBB(ss,uu,&p1,&p2,vv,&uu1,&uu2,vv1,&n1,&n2,&b1,&b2,&k1,&k2))
                 {
-                    NOGBA("NO collision found\n");
+                    //NOGBA("NO collision found\n");
                     break;
                 }
-                NOGBA("finding contacts\n");
+                //NOGBA("finding contacts\n");
 
 				if(b1&&b2)
 				{
