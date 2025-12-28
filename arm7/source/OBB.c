@@ -387,26 +387,25 @@ ARM_CODE void collideOBBs(OBB_struct* o1, OBB_struct* o2)
 			o1->numContactPoints++;
 		}
 	}*/
-
 	//optimize by working in o2 space ?
 	vect3D vv2[8];
 	getOBBVertices(o2,vv2);
 	vect3D u[3];
-		u[0]=vect(o1->transformationMatrix[0],o1->transformationMatrix[3],o1->transformationMatrix[6]);
-		u[1]=vect(o1->transformationMatrix[1],o1->transformationMatrix[4],o1->transformationMatrix[7]);
-		u[2]=vect(o1->transformationMatrix[2],o1->transformationMatrix[5],o1->transformationMatrix[8]);
+	u[0]=vect(o1->transformationMatrix[0],o1->transformationMatrix[3],o1->transformationMatrix[6]);
+	u[1]=vect(o1->transformationMatrix[1],o1->transformationMatrix[4],o1->transformationMatrix[7]);
+	u[2]=vect(o1->transformationMatrix[2],o1->transformationMatrix[5],o1->transformationMatrix[8]);
 	vect3D uu[3];
-		uu[0]=vect(o2->transformationMatrix[0],o2->transformationMatrix[3],o2->transformationMatrix[6]);
-		uu[1]=vect(o2->transformationMatrix[1],o2->transformationMatrix[4],o2->transformationMatrix[7]);
-		uu[2]=vect(o2->transformationMatrix[2],o2->transformationMatrix[5],o2->transformationMatrix[8]);
+	uu[0]=vect(o2->transformationMatrix[0],o2->transformationMatrix[3],o2->transformationMatrix[6]);
+	uu[1]=vect(o2->transformationMatrix[1],o2->transformationMatrix[4],o2->transformationMatrix[7]);
+	uu[2]=vect(o2->transformationMatrix[2],o2->transformationMatrix[5],o2->transformationMatrix[8]);
 	int32_t s[3];
-		s[0]=o1->size.x;
-		s[1]=o1->size.y;
-		s[2]=o1->size.z;
+	s[0]=o1->size.x;
+	s[1]=o1->size.y;
+	s[2]=o1->size.z;
 	int32_t ss[3];
-		ss[0]=o2->size.x;//+MAXPENETRATIONBOX;
-		ss[1]=o2->size.y;//+MAXPENETRATIONBOX;
-		ss[2]=o2->size.z;//+MAXPENETRATIONBOX;
+	ss[0]=o2->size.x;//+MAXPENETRATIONBOX;
+	ss[1]=o2->size.y;//+MAXPENETRATIONBOX;
+	ss[2]=o2->size.z;//+MAXPENETRATIONBOX;
 	for(int i=0;i<NUMOBBSEGMENTS;i++)
 	{
 		vect3D uu1=v2[OBBSegments[i][0]];
@@ -416,7 +415,8 @@ ARM_CODE void collideOBBs(OBB_struct* o1, OBB_struct* o2)
 				  || (uu1.z<-ss[2] && uu2.z<-ss[2]) || (uu1.z>ss[2] && uu2.z>ss[2]));
 		if(t)
 		{
-			do{
+			do
+            {
 				const vect3D vv=u[OBBSegmentsPD[i][1]];
 				const vect3D vv1=vect(dotProduct(vv,uu[0]),dotProduct(vv,uu[1]),dotProduct(vv,uu[2]));
 				vect3D p1=v[OBBSegments[i][0]];
@@ -427,7 +427,12 @@ ARM_CODE void collideOBBs(OBB_struct* o1, OBB_struct* o2)
 				int32_t k2=s[OBBSegmentsPD[i][1]]*2;
 				bool b1=false;
 				bool b2=false;
-				if(!clipSegmentOBB(ss,uu,&p1,&p2,vv,&uu1,&uu2,vv1,&n1,&n2,&b1,&b2,&k1,&k2))break;
+				if(!clipSegmentOBB(ss,uu,&p1,&p2,vv,&uu1,&uu2,vv1,&n1,&n2,&b1,&b2,&k1,&k2))
+                {
+                    NOGBA("NO collision found\n");
+                    break;
+                }
+                NOGBA("finding contacts\n");
 
 				if(b1&&b2)
 				{
@@ -987,6 +992,7 @@ OBB_struct* createOBB(u8 id, vect3D size, vect3D position, int32_t mass, s32 cos
 	}
 	return NULL;
 }
+#if 0
 
 void drawOBBs(void)
 {
@@ -1003,3 +1009,4 @@ void drawOBB(OBB_struct* o)
 {
     return;
 }
+#endif
