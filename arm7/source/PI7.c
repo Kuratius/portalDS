@@ -82,7 +82,7 @@ ARM_CODE void listenPI7(void)
 				s32 cosine=fifoGetValue32(FIFO_USER_08);
 				s32 sine=fifoGetValue32(FIFO_USER_08);
 
-                NOGBA("add box:id%d, %ld, %ld, %ld\n",id, pos.x,pos.y,pos.z);
+                //NOGBA("add box:id%d, %ld, %ld, %ld\n",id, pos.x,pos.y,pos.z);
                 //add box:id0, 19968, 208896, 1536
 				createOBB(id,size,pos,mass,cosine,sine);
 
