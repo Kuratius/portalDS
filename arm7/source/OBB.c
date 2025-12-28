@@ -820,8 +820,8 @@ ARM_CODE void simulate(OBB_struct* o, float dt2)
     float targetTime=dt;
 
 	applyOBBForce(o,o->position,vect(0,-inttof32(2),0)); //gravity
-	//o->forces=addVect(o->forces,vectDivInt(o->velocity,-25)); //some weird friction force?
-	//o->moment=addVect(o->moment,vectDivInt(o->angularVelocity,-20));//another weird friction?
+	o->forces=addVect(o->forces,vectDivInt(o->velocity,-25)); //some weird friction force?
+	o->moment=addVect(o->moment,vectDivInt(o->angularVelocity,-20));//another weird friction?
 
 	if(!o->sleep)
 	{
