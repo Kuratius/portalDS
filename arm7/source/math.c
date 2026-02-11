@@ -40,10 +40,10 @@ ARM_CODE uint32_t sqrtv(uint32_t x)
 void normalizef32(int32_t * a);
 ARM_CODE vect3D normalize(vect3D v)
 {
-	//int32 d=sqrtv(((int64_t)v.x*v.x+(int64_t)v.y*v.y+(int64_t)v.z*v.z)>>12);
-	//return vect(divv16(v.x,d),divv16(v.y,d),divv16(v.z,d));
-    normalizef32((int32_t *) &v);
-    return v;
+	int32 d=sqrtv(((int64_t)v.x*v.x+(int64_t)v.y*v.y+(int64_t)v.z*v.z)>>12);
+	return vect(divv16(v.x,d),divv16(v.y,d),divv16(v.z,d));
+    //normalizef32((int32_t *) &v);
+    //return v;
 }
 #endif
 
