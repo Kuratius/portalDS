@@ -37,13 +37,16 @@ ARM_CODE uint32_t sqrtv(uint32_t x)
 #if 1
 
 #if 1
-void normalizef32(int32_t * a);
+void normalize_arm7(int32_t * a);
+
 ARM_CODE vect3D normalize(vect3D v)
 {
-	int32 d=sqrtv(((int64_t)v.x*v.x+(int64_t)v.y*v.y+(int64_t)v.z*v.z)>>12);
-	return vect(divv16(v.x,d),divv16(v.y,d),divv16(v.z,d));
-    //normalizef32((int32_t *) &v);
-    //return v;
+    int32_t a[3]={v.x,v.y,v.z};
+    normalize_arm7(&a[0]);
+    v.x=a[0];
+    v.y=a[1];
+    v.z=a[2];
+    return v;
 }
 #endif
 
