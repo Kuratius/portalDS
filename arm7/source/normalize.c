@@ -52,7 +52,7 @@ ARM_CODE static inline int32_t sqrt64_helper(uint64_t m, int * exp)
     return sqrt_core(m, 1<<30);
 }
 
-void normalize_arm7(int32_t * a)
+ARM_CODE void normalize_arm7(int32_t * a)
 {
     uint64_t squared_magnitude=(int64_t)a[0]*a[0]+(int64_t)a[1]*a[1]+(int64_t)a[2]*a[2];
     if (squared_magnitude==0)
