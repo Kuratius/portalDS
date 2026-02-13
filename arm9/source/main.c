@@ -55,12 +55,10 @@ int main(int argc, char **argv)
             scanKeys();
 
             if (keysDown() & KEY_START)
-                //return 1;
-                break;
+                return 1;
         }
     }
     glInit();
-
 #if McuASAN_CONFIG_IS_ENABLED
     nocashMessage("Init ASAN\n");
     McuASAN_Init();
