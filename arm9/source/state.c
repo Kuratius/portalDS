@@ -24,11 +24,6 @@ void changeState(state_struct* s)
     return;
 }
 
-void initHardware(void)
-{
-	defaultExceptionHandler();
-	glInit();
-}
 #if 0
 void createState(state_struct* s, function i, function f, function k, function vbl)
 {

@@ -42,6 +42,7 @@ void doSPALSH()
 
 int main(int argc, char **argv)
 {
+    defaultExceptionHandler();
     consoleDemoInit();
     int ret=initFilesystem(argc, argv);
     if (!ret)
@@ -57,7 +58,7 @@ int main(int argc, char **argv)
                 return 1;
         }
     }
-    initHardware();
+    glInit();
 #if McuASAN_CONFIG_IS_ENABLED
     nocashMessage("Init ASAN\n");
     McuASAN_Init();
