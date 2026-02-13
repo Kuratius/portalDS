@@ -14,48 +14,57 @@ u32 getFileSize(FILE *file) {
 bool initFilesystem(int argc, char **argv)
 {
 	bool saveAvailable;
-
-	#ifndef FATONLY
+    if (argv==NULL)
+        return false;
+    nocashMessage("not entered ifdef\n");
 	//u8 fsMode;
-		basePath = fatGetDefaultCwd();
-		if(nitroFSInit(NULL))
-		{
-			printf("init : done");
+    nocashMessage("entered ifdef\n");
+	basePath = fatGetDefaultCwd();
+	if(nitroFSInit(NULL) &&  argv[0]!= NULL)
+	{
+		printf("init : done");
+		chdir("nitro:/");
+		chdir(ROOT);
+		if(!argv)
+        {
+            saveAvailable=false;
+            //fsMode=1;
+        } // no fat but nitro (gba slot)
+		else
+        {
+			//fsMode=2; // nitro and fat
+			saveAvailable=true;
+			chdir(basePath);
+			int r=mkdir("asds", S_IRWXU|S_IRGRP|S_IXGRP);//!ROOT!
+			if(r!=0 && errno!=EEXIST)saveAvailable=false;
+			r=mkdir("asds/maps", S_IRWXU|S_IRGRP|S_IXGRP);
+			if(r!=0 && errno!=EEXIST)saveAvailable=false;
+			r=mkdir("asds/screens", S_IRWXU|S_IRGRP|S_IXGRP);
+			if(r!=0 && errno!=EEXIST)saveAvailable=false;
+			NOGBA("can save : %d",saveAvailable);
 			chdir("nitro:/");
 			chdir(ROOT);
-			if(!argv)
-            {
-                saveAvailable=false;
-                //fsMode=1;
-            } // no fat but nitro (gba slot)
-			else
-            {
-				//fsMode=2; // nitro and fat
-				saveAvailable=true;
-				chdir(basePath);
-				int r=mkdir("asds", S_IRWXU|S_IRGRP|S_IXGRP);//!ROOT!
-				if(r!=0 && errno!=EEXIST)saveAvailable=false;
-				r=mkdir("asds/maps", S_IRWXU|S_IRGRP|S_IXGRP);
-				if(r!=0 && errno!=EEXIST)saveAvailable=false;
-				r=mkdir("asds/screens", S_IRWXU|S_IRGRP|S_IXGRP);
-				if(r!=0 && errno!=EEXIST)saveAvailable=false;
-				NOGBA("can save : %d",saveAvailable);
-				chdir("nitro:/");
-				chdir(ROOT);
-			}
-			return true;
 		}
-	//fsMode=3; // fat only ?
-	#endif
+		return true;
+	}
+
+    nocashMessage("left ifdef\n");
 	saveAvailable=false;
-	if(!fatInitDefault())return false;
+	if(!fatInitDefault())
+        return false;
 	saveAvailable=true;
 	int r=mkdir("asds", S_IRWXU|S_IRGRP|S_IXGRP);//!ROOT!
-	if(r!=0 && errno!=EEXIST)saveAvailable=false;
+	if(r!=0 && errno!=EEXIST)
+        saveAvailable=false;
+
 	r=mkdir("asds/maps", S_IRWXU|S_IRGRP|S_IXGRP);
-	if(r!=0 && errno!=EEXIST)saveAvailable=false;
+	if(r!=0 && errno!=EEXIST)
+        saveAvailable=false;
+
 	r=mkdir("asds/screens", S_IRWXU|S_IRGRP|S_IXGRP);
-	if(r!=0 && errno!=EEXIST)saveAvailable=false;
+	if(r!=0 && errno!=EEXIST)
+        saveAvailable=false;
+
 	// chdir("sd:/");
 	basePath=malloc(255);
 	getcwd(basePath,255);

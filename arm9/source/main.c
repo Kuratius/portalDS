@@ -42,9 +42,22 @@ void doSPALSH()
 
 int main(int argc, char **argv)
 {
-    initHardware();
-    initFilesystem(argc, argv);
+    consoleDemoInit();
+    int ret=initFilesystem(argc, argv);
+    if (!ret)
+    {
+        printf("Failed to initalize filesystem.\n");
+        printf("Press START to exit.\n");
+        while (1)
+        {
+            swiWaitForVBlank();
+            scanKeys();
 
+            if (keysDown() & KEY_START)
+                return 1;
+        }
+    }
+    initHardware();
 #if McuASAN_CONFIG_IS_ENABLED
     nocashMessage("Init ASAN\n");
     McuASAN_Init();
