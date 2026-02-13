@@ -14,13 +14,11 @@ u32 getFileSize(FILE *file) {
 bool initFilesystem(int argc, char **argv)
 {
 	bool saveAvailable;
-    if (argv==NULL)
-        return false;
     nocashMessage("not entered ifdef\n");
 	//u8 fsMode;
     nocashMessage("entered ifdef\n");
 	basePath = fatGetDefaultCwd();
-	if(nitroFSInit(NULL) &&  argv[0]!= NULL)
+	if(nitroFSInit(NULL))
 	{
 		printf("init : done");
 		chdir("nitro:/");

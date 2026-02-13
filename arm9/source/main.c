@@ -43,10 +43,10 @@ void doSPALSH()
 int main(int argc, char **argv)
 {
     defaultExceptionHandler();
-    consoleDemoInit();
     int ret=initFilesystem(argc, argv);
     if (!ret)
     {
+        consoleDemoInit();
         printf("Failed to initalize filesystem.\n");
         printf("Press START to exit.\n");
         while (1)
@@ -55,10 +55,12 @@ int main(int argc, char **argv)
             scanKeys();
 
             if (keysDown() & KEY_START)
-                return 1;
+                //return 1;
+                break;
         }
     }
     glInit();
+
 #if McuASAN_CONFIG_IS_ENABLED
     nocashMessage("Init ASAN\n");
     McuASAN_Init();
