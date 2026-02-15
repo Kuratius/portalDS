@@ -97,11 +97,16 @@ bool checkObjectCollisionCell(gridCell_struct* gc, physicsObject_struct* o, room
 			// int sqd=sqMagnitude(v);
 			int32 gval=dotProduct(v,normGravityVector);
 			vect3D v2=vectDifference(v,vectMult(normGravityVector,gval));
-			int32 sqd=mulf32(v2.x,v2.x)+mulf32(v2.y,v2.y)+mulf32(v2.z,v2.z)+divf32(mulf32(gval,gval),transY);
-			if(sqd<o->sqRadius)
+			//int32 sqd=mulf32(v2.x,v2.x)+mulf32(v2.y,v2.y)+mulf32(v2.z,v2.z)+divf32(mulf32(gval,gval),transY);
+			int64_t squaredMagnitude=(int64_t)v2.x*v2.x
+                                    +(int64_t)v2.y*v2.y
+                                    +(int64_t)v2.z*v2.z;
+            int32_t sqd=squaredMagnitude>>12;
+            sqd+=div64((int64_t)gval*gval,transY);
+			if(sqd < o->sqRadius)
 			{
 				// sqd=v.x*v.x+v.y*v.y+v.z*v.z;
-				int32 sqd=(v2.x*v.x)+(v2.y*v.y)+(v2.z*v2.z)+divf32(gval*gval,transY);
+				int32 sqd=squaredMagnitude+divf32(gval*gval,transY);
 				u32 d=sqrtf32((sqd));
 				v=divideVect(vectMult(vect(v.x,v.y,v.z),-((o->radius<<6)-d)),d);
 				o->position=addVect(o->position,v);
