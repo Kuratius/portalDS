@@ -400,7 +400,11 @@ bool portalToPortalIntersection(const portal_struct* p, const portal_struct* p2)
 {
 	if(!p || !p2)return false;
 
-
+    return true;
+    NOGBA("nx:%d,ny:%d,nz:%d\n", p->normal.x,p->normal.y,p->normal.z);
+    NOGBA("x:%d,y:%d,z:%d\n", p->position.x,p->position.y,p->position.z);
+    NOGBA("n2x:%d,n2y:%d,n2z:%d\n", p2->normal.x,p2->normal.y,p2->normal.z);
+    NOGBA("x:%d,y:%d,z:%d\n", p2->position.x,p2->position.y,p2->position.z);
 	vect3D vect_portals = vectProduct(p->normal,p2->normal);
 	if (equals(vect_portals.x,0) && equals(vect_portals.y,0) && equals(vect_portals.z,0))
 	{
@@ -408,12 +412,14 @@ bool portalToPortalIntersection(const portal_struct* p, const portal_struct* p2)
 		// y is "up"
 		if (p->normal.x==p2->normal.x)
 		{
+            NOGBA("X BRANCH\n");
 			return abs(p->position.y-p2->position.y)> 782*2-100
 
 			||  abs(p->position.z-p2->position.z)>374*2;
 		}
 		if (p->normal.z==p2->normal.z)
 		{
+            NOGBA("Y BRANCH\n");
 			return abs(p->position.y-p2->position.y)> 782*2-100 ||  abs(p->position.x-p2->position.x)>374*2;
 		}
 		if (p->position.y==p2->position.y)

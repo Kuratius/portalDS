@@ -299,15 +299,23 @@ void shootPlayerGun(player_struct* p, bool R, u8 mode)
 
 			if(isPortalOnWall(p->currentRoom,por,false)&&portalToPortalIntersection(por,other_por))
 			{
+                NOGBA("Portal primary branch!\n");
+
 				pos=por->position;
 				movePortal(por, oldp, oldn, oldp0, false); //terribly inelegant, please forgive me
 				ejectPortalOBBs(por);
 
 				movePortal(por, pos, vectMultInt(r->normal,-1), plane0, true);
 			}else{
+                NOGBA("Portal secondary branch!\n");
+                NOGBA("portal intersect is %d\n", portalToPortalIntersection(por,other_por));
 				movePortal(por, oldp, oldn, oldp0, false);
 			}
 		}
+        else 
+        {
+            NOGBA("TRIED TO PLACE PORTAL BUT FAILED\n");
+        }
 	}
 }
 
