@@ -1,6 +1,6 @@
 #include "stdafx.h"
 
-#define ALLOCATORSIZE (4*1024) //may cause problems !
+#define ALLOCATORSIZE (8*1024) //may cause problems !
 
 static u8 allocatorPool[ALLOCATORSIZE];
 static u16 allocatorCounter=0;
