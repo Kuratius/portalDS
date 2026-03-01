@@ -101,7 +101,23 @@ static inline vect3D divideVect(vect3D v, int32 d)
 	return vect(divv16(v.x,d),divv16(v.y,d),divv16(v.z,d));
 }
 
-vect3D vectProduct(vect3D v1, vect3D v2);
+ARM_CODE void asm_crossf32(const int32_t *a,const int32_t * b,int32_t *result);
+
+static inline vect3D vectProduct(vect3D v1, vect3D v2)
+{
+    int32_t result[3];
+    if (sizeof(vect3D)!=3*sizeof(int32_t))
+    {
+        int32_t a[3]={v1.x, v1.y,v1.z};
+        int32_t b[3]={v2.x,v2.y,v2.z};
+        asm_crossf32(&a[0], &b[0],&result[0]);     
+    } 
+    else
+    {
+        asm_crossf32((const int32_t*)&v1,(const int32_t*) &v2,&result[0]);     
+    }
+    return vect(result[0],result[1], result[2]);
+}
 
 // static inline int cosLerp(int32 x){return floattof32(cos((x*PI)/16384));}
 // static inline int sinLerp(int32 x){return floattof32(sin((x*PI)/16384));}

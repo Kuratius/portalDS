@@ -84,7 +84,7 @@ ARM_CODE void rotateMatrixAxis(int32* tm, int32 x, vect3D a, bool r)
     memcpy(tm,m,9*sizeof(int32));
 }
 
-ARM_CODE static inline void asm_crossf32(const int32_t *a,const int32_t * b,int32_t *result)
+ARM_CODE __attribute__((noinline)) void asm_crossf32(const int32_t *a,const int32_t * b,int32_t *result)
 { 
     register const int32_t *r0 asm("r0")=a;
     asm (
@@ -117,21 +117,6 @@ ARM_CODE static inline void asm_crossf32(const int32_t *a,const int32_t * b,int3
     return;
 }
 
-ARM_CODE vect3D vectProduct(vect3D v1, vect3D v2)
-{
-    int32_t result[3];
-    if (sizeof(vect3D)!=3*sizeof(int32_t))
-    {
-        int32_t a[3]={v1.x, v1.y,v1.z};
-        int32_t b[3]={v2.x,v2.y,v2.z};
-        asm_crossf32(&a[0], &b[0],&result[0]);     
-    } 
-    else
-    {
-        asm_crossf32((const int32_t*)&v1,(const int32_t*) &v2,&result[0]);     
-    }
-    return vect(result[0],result[1], result[2]);
-}
 
 void fixMatrix(int32* m) //3x3
 {
