@@ -76,7 +76,7 @@ void getOBBVertices(OBB_struct* o, vect3D* v);
 void drawOBB(OBB_struct* o);
 void applyOBBImpulses(OBB_struct* o);
 void applyOBBForce(OBB_struct* o, vect3D p, vect3D f);
-void updateOBB(OBB_struct* o);
+//void updateOBB(OBB_struct* o);
 
 void initOBBs(void);
 void updateOBBs(void);

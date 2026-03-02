@@ -708,13 +708,12 @@ void applyOBBImpulses(OBB_struct* o)
 	}
 }
 
-ARM_CODE void integrate(OBB_struct* o, float dt)
+ARM_CODE static void integrate(OBB_struct* o, int32_t DT)
 {
 	if(!o)
         return;
 
     //NOGBA("dt is %f\n", dt);
-    int32_t DT=dt*(1ll<<32);  
     int32_t x,y,z;
     x=o->position.x;
     y=o->position.y;
@@ -803,39 +802,29 @@ ARM_CODE void calculateOBBEnergy(OBB_struct* o)
 
 
 
-ARM_CODE void simulate(OBB_struct* o, float dt2)
+ARM_CODE static void simulate(OBB_struct* o, int32_t dt2)
 {
 	if(!o)
         return;
-
-    //NOGBA("dt2 is %f\n", dt2);
-
-
-	//int32 dt=(dt2)<<TIMEPREC;
-	//float dt=f32tofloat(dt2);
-    float dt=dt2*(1.0f/(1<<12));
-    //
-    //NOGBA("dt is %f\n", dt);
-    float currentTime=0;
-    float targetTime=dt;
-
+    int32_t dt=dt2*(1<<20);
+    int32_t currentTime=0;
+    int32_t targetTime=dt;
 	applyOBBForce(o,o->position,vect(0,-inttof32(2),0)); //gravity
 	//o->forces=addVect(o->forces,vectDivInt(o->velocity,-25)); //some weird friction force?
 	//o->moment=addVect(o->moment,vectDivInt(o->angularVelocity,-20));//another weird friction?
-
 	if(!o->sleep)
 	{
 		while(currentTime<dt)
 		{
 			OBB_struct bkp;
 			copyOBB(o,&bkp);
-			integrate(o,targetTime-currentTime);
+			integrate(o,(targetTime-currentTime));
 			checkOBBCollisions(o, false);
 			if(o->numContactPoints && o->maxPenetration>PENETRATIONTHRESHOLD)
 			{
 				targetTime=(currentTime+targetTime)/2;
 				copyOBB(&bkp,o);
-				if(targetTime-currentTime<=0.000001f)
+				if( (targetTime-currentTime)<=((int32_t)(0.000001f*(1ll<<32))) )
 				{
 					// printf("desp impulse\n");
 					checkOBBCollisions(o, false);
@@ -909,10 +898,8 @@ ARM_CODE void simulate(OBB_struct* o, float dt2)
 
 	o->forces=vect(0,0,0);
 	o->moment=vect(0,0,0);
-
 	//o->forces=vectDivInt(o->forces,2);
 	//o->moment=vectDivInt(o->moment,2);
-
 }
 
 ARM_CODE bool pointInFrontOfPortal(portal_struct* p, vect3D pos, int32* z) //assuming correct normal
@@ -957,7 +944,7 @@ ARM_CODE void updateOBBPortals(OBB_struct* o, u8 id, bool init)
 
 }
 
-void updateOBB(OBB_struct* o)
+static void updateOBB(OBB_struct* o)
 {
 	if(!o)return;
 
@@ -970,7 +957,7 @@ void updateOBB(OBB_struct* o)
 	}
 }
 
-void updateOBBs(void)
+ARM_CODE __attribute__((noinline)) void updateOBBs(void)
 {
 	sleeping=0;
 	for(int i=0;i<NUMOBJECTS;i++)
