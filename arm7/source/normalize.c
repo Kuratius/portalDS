@@ -41,6 +41,25 @@ ARM_CODE static uint32_t sqrt_core(uint32_t x, uint32_t y)
     return ((y)-(hi) ); //but then this underflows so they cancel
 }
 
+ARM_CODE static uint32_t sqrt_core_asm(uint32_t x, uint32_t y)
+{
+    for (uint32_t i =1; i<14; i+=1){
+        asm(".syntax unified\n\t"
+            "adds r12, %[x], %[x], lsr %[i]\n\t"
+            "addscc r12, r12, r12, lsr %[i]\n\t"
+            "movcc %[x], r12\n\t"
+            "addcc %[y], %[y], %[y], lsr %[i]"
+        : [x]"+r"(x), [y]"+r"(y)  //output
+        : [i]"Ir"(i)//input
+        : "r12","cc"//clobber
+        );
+    }
+    uint32_t hi = ((uint64_t)(x)*(y))>>32;
+    y+=y>>1; //this can overflow
+    return ((y)-(hi>>1)); //but then this underflows so they cancel
+}
+
+
 uint32_t rsqrt1616(uint32_t m)
 {
 //input: 16.16 number
@@ -51,7 +70,7 @@ uint32_t rsqrt1616(uint32_t m)
     int shift=30-ilog2;
     m<<=shift;
     int shift2=22-(shift>>1);
-    uint32_t result=sqrt_core(m, 1<<30);
+    uint32_t result=sqrt_core_asm(m, 1<<30);
     return shift2>=0 ? result>>shift2 : result<<-shift2;
 //output: 16.16 number
 }
@@ -66,7 +85,7 @@ ARM_CODE static inline int32_t sqrt64_helper(uint64_t m, int * exp)
     m= shift>=0 ? m<<shift : m>>-shift;
     int shift2=22-(shift>>1);
     *exp=shift2;
-    return sqrt_core(m, 1<<30);
+    return sqrt_core_asm(m, 1<<30);
 }
 
 ARM_CODE void normalize_arm7(int32_t * a)
