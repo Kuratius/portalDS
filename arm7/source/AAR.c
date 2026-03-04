@@ -286,7 +286,11 @@ ARM_CODE void OBBAARContacts(AAR_struct* a, OBB_struct* o, bool port)
 
 ARM_CODE bool AAROBBContacts(AAR_struct* a, OBB_struct* o, vect3D* v, bool port)
 {
-	if(!a || !o || !o->used || !a->used)return false;
+	if(!a || !o )return false;
+
+    if(!o->used || !a->used)return false;
+
+
 
 	u16 oldnum=o->numContactPoints;
 
@@ -309,10 +313,13 @@ ARM_CODE bool AAROBBContacts(AAR_struct* a, OBB_struct* o, vect3D* v, bool port)
 				const vect3D vv=u[OBBSegmentsPD[i][1]];
 				const int32 k=divv16(abs(uu.x-a->position.x),abs(vv.x));
 				const vect3D p=addVect(uu,vectMult(vv,k));
-				if(p.y>a->position.y && p.y<a->position.y+a->size.y && p.z>a->position.z && p.z<a->position.z+a->size.z)
+				if(p.y > a->position.y 
+                    && p.y < a->position.y + a->size.y 
+                    && p.z > a->position.z 
+                    && p.z<a->position.z+a->size.z)
 				{
 					bool b=false;
-					if(port)
+					if(port && (&portal[0]))
 					{
 						if(portal[0].normal.x)b=pointInPortal(&portal[0],p);
 						if(!b&&portal[1].normal.x)b=pointInPortal(&portal[1],p);
@@ -405,6 +412,10 @@ ARM_CODE bool AAROBBContacts(AAR_struct* a, OBB_struct* o, vect3D* v, bool port)
 
 void AARsOBBContacts(OBB_struct* o, bool sleep)
 {
+    if (!o)
+        return;
+    if (! (&portal[0]))
+        return;
 	int i, j, k;
 	bool port=portal[0].used&&portal[1].used;
 	vect3D v[8];
