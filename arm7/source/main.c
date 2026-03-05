@@ -50,29 +50,8 @@ void powerButtonCB() {
 //plane_struct testPlane;
 //extern u32 coll, integ, impul;
 //extern u8 sleeping;
+ARM_CODE __attribute__((noinline)) void mainLoop(){
 
-
-
-int main() {
-	enableSound();
-	readUserSettings();
-	touchInit();
-	irqInit();
-	fifoInit();
-	// mmInstall(FIFO_MAXMOD);
-	SetYtrigger(80);
-	installSoundFIFO();
-	installSystemFIFO();
-	//initClockIRQ();
-    initClockIRQTimer(0);
-	irqSet(IRQ_VCOUNT, VcountHandler);
-	irqSet(IRQ_VBLANK, VblankHandler);
-
-	irqEnable(IRQ_VBLANK | IRQ_VCOUNT);
-
-	setPowerButtonCB(powerButtonCB);
-
-	initPI7();
     coll=0;
     impul=0;
     integ=0;
@@ -97,5 +76,29 @@ int main() {
 		swiWaitForVBlank();
 		cnt++;
 	}
+
+}
+
+int main() {
+	enableSound();
+	readUserSettings();
+	touchInit();
+	irqInit();
+	fifoInit();
+	// mmInstall(FIFO_MAXMOD);
+	SetYtrigger(80);
+	installSoundFIFO();
+	installSystemFIFO();
+	//initClockIRQ();
+    initClockIRQTimer(0);
+	irqSet(IRQ_VCOUNT, VcountHandler);
+	irqSet(IRQ_VBLANK, VblankHandler);
+
+	irqEnable(IRQ_VBLANK | IRQ_VCOUNT);
+
+	setPowerButtonCB(powerButtonCB);
+
+	initPI7();
+    mainLoop();
 	return 0;
 }
