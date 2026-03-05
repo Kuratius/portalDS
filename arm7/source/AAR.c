@@ -58,6 +58,7 @@ void freeGrid(grid_struct* g)
     if (!g)
         return;
     free(g->nodes);
+    g->nodes=NULL;
     //initAllocator();
     allocatorCounter=0;
 }
