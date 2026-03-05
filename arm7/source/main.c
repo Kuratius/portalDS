@@ -73,60 +73,24 @@ int main() {
 	setPowerButtonCB(powerButtonCB);
 
 	initPI7();
-
-	// initPlane(&testPlane, 0, inttof32(1), 0, inttof32(3)/2);
-
-	// createAAR(0, vect(-inttof32(0),-inttof32(1)/2,-inttof32(3)), vect(inttof32(6),0,inttof32(6)), vect(0,inttof32(1),0));
-	// createAAR(1, vect(-inttof32(0),-inttof32(1)/2-inttof32(6),-inttof32(3)), vect(0,inttof32(6),inttof32(6)), vect(-inttof32(1),0,0));
-
+    coll=0;
+    impul=0;
+    integ=0;
 	while(!exitflag)
 	{
 		if(getPI7Status())
 		{
-			//cpuStartTiming(0);
-
-		    coll=0;
-            impul=0;
-            integ=0;
-			updatePlatforms();
-			updateOBBs();
-			listenPI7();
-			updatePlatforms();
-			updateOBBs();
-			listenPI7();
-			updatePlatforms();
-			updateOBBs();
-			listenPI7();
-			updatePlatforms();
-			updateOBBs();
-			listenPI7();
-			updatePlatforms();
-			updateOBBs();
-				// updateOBBs();
-				// updateOBBs();
-				// updateOBBs();
-				// updateOBBs();
-				// updateOBBs();
-			// fifoSendValue32(FIFO_USER_08,integ);
-			// fifoSendValue32(FIFO_USER_08,coll);
-			// fifoSendValue32(FIFO_USER_08,impul);
-			// fifoSendValue32(FIFO_USER_08,cpuEndTiming());
-			// fifoSendValue32(FIFO_USER_08,sleeping);
-			// fifoSendValue32(FIFO_USER_08,objects[0].energy);
-			// fifoSendValue32(FIFO_USER_08,objects[1].energy);
-
+            for (int i=0;i<5; i++)
+            {
+	            listenPI7();
+			    updatePlatforms();
+			    updateOBBs();
+            }
 			sendDataPI7();
-			//NOGBA("frametime: %lu \n ",cpuEndTiming());
-
-			// u32 key=REG_KEYINPUT;
-			// if(0==(key&(KEY_B)))applyOBBForce(&objects[0],addVect(testOBB->position,vect(-inttof32(1),0,0)),vect(0,inttof32(100),0));
 		}
-
-		listenPI7();
-
+	    listenPI7();
 		const uint16_t key_mask = KEY_SELECT | KEY_START | KEY_L | KEY_R;
 		uint16_t keys_pressed = ~REG_KEYINPUT;
-
 		if ((keys_pressed & key_mask) == key_mask)
 			exitflag = true;
 
