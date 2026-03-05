@@ -32,7 +32,7 @@ void* allocateData(u16 size)
         return p;
 
     allocatorCounter+=size;
-    return malloc(size);
+    return p;
 }
 
 void initAARs(void)
