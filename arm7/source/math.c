@@ -2,7 +2,7 @@
 
 uint32_t isqrt_asm(uint32_t);
 
-ARM_CODE uint32_t sqrtv(uint32_t x)
+ARM_CODE __attribute__((noinline)) uint32_t sqrtv(uint32_t x)
 {
     if (x<(1u<<20))
     {
