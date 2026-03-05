@@ -1,8 +1,8 @@
-#include "stdafx.h"
 
+#include "stdafx.h"
 #define ALLOCATORSIZE (8*1024) //may cause problems !
 
-static u8 allocatorPool[ALLOCATORSIZE];
+//static u8 allocatorPool[ALLOCATORSIZE];
 static u16 allocatorCounter=0;
 
 static AAR_struct aaRectangles[NUMAARS];
@@ -15,17 +15,24 @@ static const u8 AARSegmentsPD[NUMAARSEGMENTS][2]={{0,0},{1,1},{3,0},{0,1}};
 
 u32 nodeSize=ORIGNODESIZE;
 
-void initAllocator(void)
+/*void initAllocator(void)
 {
     allocatorCounter=0;
-}
+}*/
 
 void* allocateData(u16 size)
 {
+    /*
     if(allocatorCounter+size>ALLOCATORSIZE){return NULL;}
     allocatorCounter+=size;
     // fifoSendValue32(FIFO_USER_08,allocatorCounter);
-    return &allocatorPool[allocatorCounter-size];
+    return &allocatorPool[allocatorCounter-size];*/
+    void * p=malloc(size);
+    if (!p)
+        return p;
+
+    allocatorCounter+=size;
+    return malloc(size);
 }
 
 void initAARs(void)
@@ -35,18 +42,24 @@ void initAARs(void)
     {
         aaRectangles[i].used=false;
     }
-
     AARgrid.nodes=NULL;
     AARgrid.width=AARgrid.height=0;
-
-    initAllocator();
+    allocatorCounter=0;
 }
 
 void freeGrid(grid_struct* g)
 {
+/*
     if(!g || !g->nodes)return;
     g->nodes=NULL;
-    initAllocator();
+
+
+*/
+    if (!g)
+        return;
+    free(g->nodes);
+    //initAllocator();
+    allocatorCounter=0;
 }
 
 void generateGrid(grid_struct* g)
@@ -86,6 +99,7 @@ void generateGrid(grid_struct* g)
         g->height=(M.z-m.z)/NODESIZE+1;
     }
 
+    free(g->nodes);
     g->nodes=allocateData(sizeof(node_struct)*g->width*g->height);
 
     g->m=m;
@@ -117,7 +131,11 @@ void generateGrid(grid_struct* g)
                     }
                 }
             }
-            if(n->length){n->data=allocateData(sizeof(u16)*n->length);memcpy(n->data,temp,n->length*sizeof(u16));}
+            if(n->length)
+            {
+                n->data=allocateData(sizeof(u16)*n->length);
+                memcpy(n->data,temp,n->length*sizeof(u16));
+            }
             else n->data=NULL;
         }
     }
@@ -284,7 +302,7 @@ ARM_CODE void OBBAARContacts(AAR_struct* a, OBB_struct* o, bool port)
     }
 }
 
-ARM_CODE bool AAROBBContacts(AAR_struct* a, OBB_struct* o, vect3D* v, bool port)
+ARM_CODE bool __attribute__((noninline)) AAROBBContacts(AAR_struct* a, OBB_struct* o, vect3D* v, bool port)
 {
     if(!a || !o )return false;
 
@@ -414,9 +432,6 @@ void AARsOBBContacts(OBB_struct* o, bool sleep)
 {
     if (!o)
         return;
-    if (! (&portal[0]))
-        return;
-    int i, j, k;
     bool port=portal[0].used&&portal[1].used;
     vect3D v[8];
     getOBBVertices(o,v);
@@ -424,23 +439,34 @@ void AARsOBBContacts(OBB_struct* o, bool sleep)
     {
         u16 x=0;u16 X=0;u16 z=0;u16 Z=0;
         getOBBNodes(NULL, o, &x, &X, &z, &Z);
-        bool lalala[NUMAARS];
-        for(i=0;i<NUMAARS;i++)lalala[i]=0;
+        int8_t lalala[NUMAARS];
+        for(int i=0;i<NUMAARS;i++)lalala[i]=0;
         o->groundID=-1;
-        for(i=x;i<=X;i++)
+        for(int i=x;i<=X;i++)
         {
-            for(j=z;j<=Z;j++)
+            for(int j=z;j<=Z;j++)
             {
-                node_struct* n=&AARgrid.nodes[i+j*AARgrid.width];
-                for(k=0;k<n->length;k++)
+                if (!AARgrid.nodes)continue;
+                int idx=i+j*AARgrid.width;
+                //if (idx>= )continue;
+                node_struct* n=&AARgrid.nodes[idx];
+                if (!n) continue;
+                for(int k=0;k<n->length;k++)
                 {
                     u16 old=o->numContactPoints;
-
-                    if(!lalala[n->data[k]])
-                    {
-                        AAROBBContacts(&aaRectangles[n->data[k]], o, v, port);
+                    if (n->data){
+                        size_t idx=n->data[k];
+                        if(!lalala[idx])
+                        {
+                            AAROBBContacts(&aaRectangles[n->data[k]], o, v, port);
+                        }
                     }
-                    if(o->groundID<0 && o->numContactPoints>old && aaRectangles[n->data[k]].normal.y>0)o->groundID=n->data[k];
+                    if(o->groundID<0 
+                    && o->numContactPoints>old 
+                    && aaRectangles[n->data[k]].normal.y>0)
+                    {
+                        o->groundID=n->data[k];
+                    }
                     lalala[n->data[k]]=1;
                 }
             }
@@ -498,4 +524,3 @@ ARM_CODE void generateGuidAAR(portal_struct* p)
     p->guideAAR[3].normal=vectMultInt(p->plane[0],-1);
     fixAAR(&p->guideAAR[3]);
 }
-
