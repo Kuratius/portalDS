@@ -99,8 +99,6 @@ void generateGrid(grid_struct* g)
         g->width=(M.x-m.x)/NODESIZE+1;
         g->height=(M.z-m.z)/NODESIZE+1;
     }
-
-    free(g->nodes);
     g->nodes=allocateData(sizeof(node_struct)*g->width*g->height);
 
     g->m=m;
