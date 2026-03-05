@@ -301,7 +301,7 @@ ARM_CODE void OBBAARContacts(AAR_struct* a, OBB_struct* o, bool port)
     }
 }
 
-ARM_CODE bool __attribute__((noninline)) AAROBBContacts(AAR_struct* a, OBB_struct* o, vect3D* v, bool port)
+ARM_CODE bool __attribute__((noinline)) AAROBBContacts(AAR_struct* a, OBB_struct* o, vect3D* v, bool port)
 {
     if(!a || !o )return false;
 
@@ -336,7 +336,7 @@ ARM_CODE bool __attribute__((noninline)) AAROBBContacts(AAR_struct* a, OBB_struc
                     && p.z<a->position.z+a->size.z)
                 {
                     bool b=false;
-                    if(port && (&portal[0]))
+                    if(port)
                     {
                         if(portal[0].normal.x)b=pointInPortal(&portal[0],p);
                         if(!b&&portal[1].normal.x)b=pointInPortal(&portal[1],p);
