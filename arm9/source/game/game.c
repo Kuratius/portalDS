@@ -361,16 +361,42 @@ static inline void postProcess2(void)
 	u16* p1=mainScreen;
 	u16* p2=portal1.viewPoint;
 	u16* p3=portal2.viewPoint;
-
-	u16** stp;
+    
 	blueSeen=orangeSeen=false;
 	int oval=0;
-	for(stp=ppStack;stp<stackEnd;stp++)
+	for(u16 ** stp=ppStack;stp<stackEnd;stp++)
 	{
 		int val=(int)((*stp)-p1);
-		if(val>256*192*2){blueSeen=true;val-=256*192*2;if(p1[oval-1]==65504)oval--;if(p1[val]==65504)val++;if(val-oval>0)dmaCopy(&(p3[oval]), &(bgGetGfxPtr(mainBG)[oval]), (val-oval)*2);}
-		else if(val>256*192){orangeSeen=true;val-=256*192;if(p1[oval-1]==33791)oval--;if(p1[val]==33791)val++;if(val-oval>0)dmaCopy(&(p2[oval]), &(bgGetGfxPtr(mainBG)[oval]), (val-oval)*2);}
-		else {if(val-oval>0)dmaCopy(&(p1[oval]), &(bgGetGfxPtr(mainBG)[oval]), (val-oval)*2);}
+		if(val>256*192*2 && p1 !=NULL)
+        {
+            blueSeen=true;
+            val-=256*192*2;
+            if(p1[oval-1]==65504)
+                oval--;
+
+            if(p1[val]==65504)
+                val++;
+
+            if(val-oval>0 && p3!=NULL)
+                dmaCopy(&(p3[oval]), &(bgGetGfxPtr(mainBG)[oval]), (val-oval)*2);
+
+        }
+		else if(val>256*192 && p1 !=NULL)
+        {
+            orangeSeen=true;
+            val-=256*192;
+            if(p1[oval-1]==33791)
+                oval--;
+            if(p1[val]==33791)
+                val++;
+            if(val-oval>0 && p2 !=NULL)
+                dmaCopy(&(p2[oval]), &(bgGetGfxPtr(mainBG)[oval]), (val-oval)*2);
+        }
+		else
+        {
+            if(val-oval>0 && p1 !=NULL)
+                dmaCopy(&(p1[oval]), &(bgGetGfxPtr(mainBG)[oval]), (val-oval)*2);
+        }
 		oval=val;
 	}
 }
