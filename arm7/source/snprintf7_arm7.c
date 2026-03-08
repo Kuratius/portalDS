@@ -264,10 +264,10 @@ static int bufVprintf(const char *fmt, va_list args)
         *(buffer->address)='\0';
         return charsPrinted;
     }
-    *(buffer->max_address)='\0';
+    *buf0='\0';
     return -charsPrinted;
     fmtError:
-    *(buffer->max_address)='\0';
+    *buf0='\0';
     return -1;        
 }
 //int bufVprintf(char * buf, char * max_address , const char *fmt, va_list args);
@@ -276,6 +276,10 @@ int snprintf_arm7(char * s, size_t n , const char * fmt, ...)
 {
     struct bufstruct * t=buffer; 
     //if 32-bit access wasnt atomic this would require a critical section
+    if (n ==0)
+    {
+        return -1;
+    }
     struct bufstruct stackBuffer={.address=s, .max_address= s+n-1, .padding=0, .paddingChar=' '};   
     buffer=&stackBuffer;
     int ret;
